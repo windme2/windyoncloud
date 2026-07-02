@@ -71,7 +71,7 @@ export function Header() {
           : "bg-transparent py-6",
       )}
     >
-      <div className="container flex items-center justify-between">
+      <div className="container max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
         {/* Brand Logo */}
         <a
           href="#home"
@@ -138,15 +138,15 @@ export function Header() {
       {/* Mobile drawer drop menu */}
       {isMenuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-white dark:bg-black shadow-lg animate-fade-in border-b border-border/15">
-          <div className="container py-4 flex flex-col space-y-4 px-6 text-left">
+          <div className="container max-w-7xl mx-auto py-4 flex flex-col space-y-4 px-4 md:px-8 text-left">
             {navLinks.map((link) => (
               <a
                 key={link.name}
                 href={link.href}
                 className={cn(
-                  "font-medium transition-all py-2 hover:pl-2 hover:text-orange-500",
+                  "font-medium transition-all py-2 hover:pl-2 hover:text-orange-500 dark:hover:text-orange-500",
                   activeLink === link.href.substring(1)
-                    ? "text-orange-500 font-bold"
+                    ? "text-orange-500 dark:text-orange-500 font-bold"
                     : "text-slate-600 dark:text-slate-400",
                 )}
                 onClick={(e) => {
