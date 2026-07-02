@@ -49,7 +49,7 @@ export function Hero() {
   return (
     <section
       id="home"
-      className="min-h-screen flex items-center justify-center pt-24 md:pt-28 pb-20 md:pb-24 relative overflow-hidden bg-background dark:bg-black"
+      className="min-h-screen flex items-center justify-center pt-32 md:pt-36 pb-20 md:pb-24 relative overflow-hidden bg-background dark:bg-black"
     >
       {/* Background soft ambient glowing orbs */}
       <div className="absolute top-1/4 left-1/10 w-72 h-72 md:w-96 md:h-96 bg-orange-500/10 rounded-full blur-3xl animate-pulse-slow -z-10" />

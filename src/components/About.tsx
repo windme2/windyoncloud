@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TrendingUp, Group, Crown, Puzzle } from "lucide-react";
 import Image from "next/image";
 
@@ -11,6 +11,16 @@ import Image from "next/image";
 export function About() {
   const [cardOrder, setCardOrder] = useState([2, 1, 0]);
   const [isHovered, setIsHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const bringToFront = (id: number) => {
     setCardOrder((prev) => {
@@ -29,20 +39,30 @@ export function About() {
     if (position === 2) {
       zIndex = 30;
       transform = isHovered
-        ? "rotate(0deg) translate(0px, -20px) scale(1.04)"
+        ? isMobile
+          ? "rotate(0deg) translate(0px, -10px) scale(1.02)"
+          : "rotate(0deg) translate(0px, -20px) scale(1.04)"
         : "rotate(0deg) translate(0px, 0px)";
       opacity = 1;
     } else if (position === 1) {
       zIndex = 20;
       transform = isHovered
-        ? "rotate(-12deg) translate(-50px, 15px)"
-        : "rotate(-6deg) translate(-20px, 10px)";
+        ? isMobile
+          ? "rotate(-8deg) translate(-25px, 8px)"
+          : "rotate(-12deg) translate(-50px, 15px)"
+        : isMobile
+          ? "rotate(-4deg) translate(-10px, 5px)"
+          : "rotate(-6deg) translate(-20px, 10px)";
       opacity = isHovered ? 1 : 0.9;
     } else {
       zIndex = 10;
       transform = isHovered
-        ? "rotate(12deg) translate(50px, -15px)"
-        : "rotate(6deg) translate(20px, -10px)";
+        ? isMobile
+          ? "rotate(8deg) translate(25px, -8px)"
+          : "rotate(12deg) translate(50px, -15px)"
+        : isMobile
+          ? "rotate(4deg) translate(10px, -5px)"
+          : "rotate(6deg) translate(20px, -10px)";
       opacity = isHovered ? 1 : 0.8;
     }
 
@@ -119,7 +139,7 @@ export function About() {
             {/* Left Column - Interactive Fanned-out Card Stack (4 Cards) */}
             <div className="reveal delay-200 mt-12 mb-16 lg:mb-0 flex justify-center">
               <div
-                className="relative w-[280px] h-[280px] sm:w-[340px] sm:h-[340px] md:w-[380px] md:h-[380px]"
+                className="relative w-[240px] h-[240px] sm:w-[300px] sm:h-[300px] md:w-[380px] md:h-[380px]"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
               >
@@ -137,7 +157,7 @@ export function About() {
                     alt="Developer Workspace"
                     fill
                     className="object-cover pointer-events-none"
-                    sizes="(max-width: 768px) 280px, 380px"
+                    sizes="(max-width: 640px) 240px, (max-width: 768px) 300px, 380px"
                   />
                   <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-4 text-white text-left pointer-events-none">
                     <p className="text-[10px] uppercase tracking-wider text-orange-400 font-bold">
@@ -160,7 +180,7 @@ export function About() {
                     alt="IT Infrastructure"
                     fill
                     className="object-cover pointer-events-none"
-                    sizes="(max-width: 768px) 280px, 380px"
+                    sizes="(max-width: 640px) 240px, (max-width: 768px) 300px, 380px"
                   />
                   <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-4 text-white text-left pointer-events-none">
                     <p className="text-[10px] uppercase tracking-wider text-orange-400 font-bold">
@@ -183,7 +203,7 @@ export function About() {
                     alt="Automation Workflow"
                     fill
                     className="object-cover pointer-events-none"
-                    sizes="(max-width: 768px) 280px, 380px"
+                    sizes="(max-width: 640px) 240px, (max-width: 768px) 300px, 380px"
                   />
                   <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-4 text-white text-left pointer-events-none">
                     <p className="text-[10px] uppercase tracking-wider text-orange-400 font-bold">
