@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# windyoncloud — Intouch Charoenphon Portfolio
 
-## Getting Started
+A modern, responsive, and visually stunning personal portfolio website built with Next.js, TypeScript, and Tailwind CSS. The portfolio showcases my professional journey, technical skills, open-source projects, and contact information.
 
-First, run the development server:
+## ✨ Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Dynamic Hero Section**: Interactive introductory terminal and typing animations showcasing multiple technical roles.
+- **Interactive Timeline**: Detailed showcase of academic background and professional experience.
+- **Projects Grid**: Categorized view of projects with descriptions, tags, and links to source code/live previews.
+- **Skills Directory**: Technical expertise categorized by proficiency and domain.
+- **Dark/Light Mode**: Seamless theme toggling with `next-themes` and a custom toggle component.
+- **Smooth Animations**: Custom page load splash screens, terminal transitions, and interactive components.
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Icons**: [Lucide React](https://lucide.dev/) & [Iconify](https://iconify.design/)
+- **State/Theme**: `next-themes`
+- **Deployment**: [Vercel](https://vercel.com/)
+
+## 📂 Project Structure
+
+```text
+src/
+├── app/                  # Next.js App Router layouts and page entries
+├── components/           # Reusable UI components (Hero, About, Projects, Journey, etc.)
+│   └── ui/               # Lower-level design primitives
+├── data/                 # Static data configurations (skills, projects, journey data)
+└── lib/                  # Core helpers and utility functions
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Getting Started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Follow these steps to run the project locally.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Prerequisites
 
-## Learn More
+Ensure you have Node.js (version 18 or higher) and npm/yarn/pnpm installed.
 
-To learn more about Next.js, take a look at the following resources:
+### Installation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/windme2/intouch-folio.git
+   cd intouch-folio
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-## Deploy on Vercel
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Build and Lint
+
+- **Production Build**:
+  ```bash
+  npm run build
+  ```
+- **Linter Check**:
+  ```bash
+  npm run lint
+  ```
+
+## 📬 Contact
+
+- **GitHub**: [@windme2](https://github.com/windme2)
