@@ -7,14 +7,13 @@ import {
   Briefcase,
   Code,
   Building,
-  Target,
   Package,
   Laptop,
 } from "lucide-react";
 
 export const educationData = [
   {
-    year: "2015-2018",
+    year: "2012-2015",
     title: "Vocational Certificate",
     subtitle: "Business Computer",
     institution: "Viboon Business Administration Technological College",
@@ -24,7 +23,7 @@ export const educationData = [
     status: "completed",
   },
   {
-    year: "2020-2024",
+    year: "2017-2020",
     title: "Bachelor of Science and Technology",
     subtitle: "Industrial Product Design (Drop out)",
     institution: "Rajamangala University of Technology Krungthep",
