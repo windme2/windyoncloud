@@ -82,7 +82,7 @@ export const experienceData = [
     subtitle: "IT Infrastructure & Operations",
     company: "System Dot Com Company Limited",
     description:
-      "Initially responsible for senior inventory management, they fully dedicated themselves to improving the performance of all hardware and spare parts, recording data, and monitoring via Dynamics 365 Central, including data analysis. They were also heavily involved in IT infrastructure work, maintaining primary server and storage infrastructure using VMware/remote tools (iDRAC, iLO, IMM), and designing automated workflows to minimize hardware configuration errors.",
+      "Originally managing senior inventory, optimized the performance of IT hardware and spare parts while driving data analysis via Microsoft Dynamics 365 Business Central. Concurrently managed core IT infrastructure by maintaining server and storage systems using VMware and remote tools (iDRAC, iLO, IMM), while engineering automated workflows to eliminate hardware configuration errors. These automation efforts successfully reduced system setup times and significantly improved operational reliability.",
     icon: Briefcase,
     status: "completed",
   },
