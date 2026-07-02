@@ -75,7 +75,7 @@ export function Hero() {
         </div>
 
         {/* Text Details Section */}
-        <div className="order-2 md:order-1 md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left space-y-8">
+        <div className="order-2 md:order-1 md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left space-y-4 md:space-y-8">
           <div className="reveal space-y-2">
             <h2 className="font-semibold text-lg md:text-xl text-slate-700 dark:text-slate-300">
               Hello, I&apos;m
@@ -96,7 +96,7 @@ export function Hero() {
           </div>
 
           {/* Available for Work Badge */}
-          <div className="reveal delay-100 mt-3">
+          <div className="reveal delay-100">
             <div className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-300 cursor-default">
               <div className="w-2 h-2 bg-white rounded-full animate-ping"></div>
               Available for Work
