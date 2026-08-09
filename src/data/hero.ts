@@ -9,6 +9,6 @@ export const typingTexts = [
   "Full-stack Developer",
   "DevOps Engineer",
   "System Engineer",
-  "IT Automation",
-  "IT Infrastructure",
+  "IT Automation Specialist",
+  "IT Infrastructure Engineer",
 ];
