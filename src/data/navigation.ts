@@ -9,4 +9,6 @@ export const navLinks = [
   { name: "Skills", href: "#skills" },
   { name: "Projects", href: "#projects" },
   { name: "Contact", href: "#contact" },
+  // a page, not a home section: the menu links to it directly
+  { name: "Services", href: "/services" },
 ];
