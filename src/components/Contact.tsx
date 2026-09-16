@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail } from "lucide-react";
+import { Mail, ArrowUpRight } from "lucide-react";
+import { SectionHeading } from "@/components/SectionHeading";
 import { Github, Linkedin, Instagram } from "@/components/icons";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -27,12 +27,18 @@ export function Contact() {
   // Handle asynchronous form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const formspreeEndpoint = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT;
+
+    if (!formspreeEndpoint) {
+      console.error("NEXT_PUBLIC_FORMSPREE_ENDPOINT is not configured.");
+      setSubmitStatus("error");
+      setTimeout(() => setSubmitStatus("idle"), 5000);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const formspreeEndpoint =
-        process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT ||
-        "https://formspree.io/f/YOUR_FORM_ID";
 
       const response = await fetch(formspreeEndpoint, {
         method: "POST",
@@ -66,145 +72,94 @@ export function Contact() {
     }));
   };
 
+  const links = [
+    {
+      label: "Email",
+      value: "intouch.crp@gmail.com",
+      href: "mailto:intouch.crp@gmail.com",
+      icon: Mail,
+    },
+    {
+      label: "LinkedIn",
+      value: "intouch-charoenphon",
+      href: "https://linkedin.com/in/intouch-charoenphon-a89b21207/",
+      icon: Linkedin,
+    },
+    {
+      label: "GitHub",
+      value: "windme2",
+      href: "https://github.com/windme2",
+      icon: Github,
+    },
+    {
+      label: "Instagram",
+      value: "withcrpn",
+      href: "https://instagram.com/withcrpn/",
+      icon: Instagram,
+    },
+  ];
+
+  const fieldClass =
+    "rounded-none border-0 border-b bg-transparent px-0 shadow-none focus-visible:border-primary focus-visible:ring-0 focus-visible:ring-offset-0";
+  // foreground at 75% (not muted): the glass form sits on the purple lower sky at night
+  const labelClass =
+    "font-mono text-[10px] uppercase tracking-[0.25em] text-foreground/75";
+
   return (
-    <section
-      id="contact"
-      className="py-16 md:py-24 relative bg-background bg-grid-pattern dark:bg-gray-950"
-    >
-      <div className="container">
-        {/* Heading title - Clean solid text */}
-        <h2 className="reveal text-3xl md:text-4xl font-bold mb-6 text-center text-slate-900 dark:text-white">
-          Get in <span className="text-orange-500">Touch</span>
-        </h2>
-        <p className="reveal delay-100 text-lg text-muted-foreground text-center max-w-xl mx-auto mb-12">
-          Always open to collaborations, freelance opportunities, or a friendly
-          chat about web development.
-        </p>
+    <section id="contact" className="relative scroll-mt-20 py-20 md:py-32">
+      <div className="container max-w-7xl">
+        <SectionHeading index="06" label="Contact" title="Get in" accent="touch" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Left Column: Contact Links (Minimal list style, no boxes/borders) */}
-          <div className="reveal delay-200 space-y-6 text-left">
-            <h3 className="text-xl font-semibold mb-10 text-slate-900 dark:text-white">
-              Contact Information
-            </h3>
-
-            <div className="space-y-6">
-              {/* Email */}
-              <a
-                href="mailto:intouch.crp@gmail.com"
-                className="flex items-center space-x-4 group p-1 transition-all duration-300 hover:translate-x-1 cursor-pointer"
-              >
-                <div className="bg-rose-500 p-3 rounded-full shadow-md transition-transform duration-300 group-hover:scale-110">
-                  <Mail className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase font-semibold">
-                    Email
-                  </p>
-                  <p className="text-lg font-medium group-hover:text-rose-500 transition-colors">
-                    intouch.crp@gmail.com
-                  </p>
-                </div>
-              </a>
-
-              {/* LinkedIn */}
-              <a
-                href="https://linkedin.com/in/intouch-charoenphon-a89b21207/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-4 group p-1 transition-all duration-300 hover:translate-x-1 cursor-pointer"
-              >
-                <div className="bg-blue-600 p-3 rounded-full shadow-md transition-transform duration-300 group-hover:scale-110">
-                  <Linkedin className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase font-semibold">
-                    LinkedIn
-                  </p>
-                  <p className="text-lg font-medium group-hover:text-blue-600 transition-colors">
-                    linkedin.com/in/intouch-charoenphon
-                  </p>
-                </div>
-              </a>
-
-              {/* GitHub */}
-              <a
-                href="https://github.com/windme2"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-4 group p-1 transition-all duration-300 hover:translate-x-1 cursor-pointer"
-              >
-                <div className="bg-zinc-900 dark:bg-zinc-800 border border-zinc-800 dark:border-zinc-700 p-3 rounded-full shadow-md transition-transform duration-300 group-hover:scale-110">
-                  <Github className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase font-semibold">
-                    GitHub
-                  </p>
-                  <p className="text-lg font-medium group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-                    github.com/windme2
-                  </p>
-                </div>
-              </a>
-
-              {/* Instagram */}
-              <a
-                href="https://instagram.com/withcrpn/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-4 group p-1 transition-all duration-300 hover:translate-x-1 cursor-pointer"
-              >
-                <div className="bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 p-3 rounded-full shadow-md transition-transform duration-300 group-hover:scale-110">
-                  <Instagram className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase font-semibold">
-                    Instagram
-                  </p>
-                  <p className="text-lg font-medium group-hover:text-pink-500 transition-colors">
-                    instagram.com/withcrpn
-                  </p>
-                </div>
-              </a>
-            </div>
+        <div className="grid gap-16 lg:grid-cols-12">
+          {/* Links */}
+          <div className="reveal delay-100 space-y-10 lg:col-span-5">
+            <p className="max-w-sm font-display text-xl font-light leading-relaxed md:text-2xl">
+              Open to collaborations and freelance work.
+            </p>
+            <ul className="border-t">
+              {links.map(({ label, value, href, icon: Icon }) => (
+                <li key={label} className="border-b">
+                  <a
+                    href={href}
+                    target={href.startsWith("http") ? "_blank" : undefined}
+                    rel="noopener noreferrer"
+                    className="group flex items-center justify-between gap-4 py-4"
+                  >
+                    <span className="flex items-center gap-4">
+                      <Icon className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary-ink" />
+                      <span className={labelClass}>{label}</span>
+                    </span>
+                    <span className="text-sm transition-transform group-hover:translate-x-1">
+                      {value}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Right Column: Dynamic Form (Clean styling) */}
-          <div className="reveal delay-300">
-            <form
-              onSubmit={handleSubmit}
-              className={cn(
-                "space-y-6 bg-white dark:bg-gray-900 p-8 rounded-lg border border-gray-200 dark:border-gray-800 shadow-md transition-all duration-300 text-left",
-                submitStatus === "success" &&
-                  "border-green-500 shadow-green-200/50 shadow-lg",
-                submitStatus === "error" &&
-                  "border-red-500 shadow-red-200/50 shadow-lg",
-              )}
-            >
-              {/* Success/Error status message feedback */}
+          {/* Form */}
+          <div className="reveal delay-200 lg:col-span-7">
+            <form onSubmit={handleSubmit} className="glass space-y-8 rounded-3xl p-6 md:p-10">
               {submitStatus !== "idle" && (
                 <div
+                  role="status"
                   className={cn(
-                    "p-3 rounded-lg text-sm font-medium transition-all duration-300",
-                    submitStatus === "success" &&
-                      "bg-green-100 text-green-800 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/30",
-                    submitStatus === "error" &&
-                      "bg-red-100 text-red-800 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800/30",
+                    "border px-4 py-3 text-sm",
+                    submitStatus === "success"
+                      ? "border-emerald-400/50 text-emerald-300"
+                      : "border-red-400/50 text-red-300",
                   )}
                 >
                   {submitStatus === "success"
-                    ? "✓ Message sent successfully!"
-                    : "✗ Failed to send message. Please try again."}
+                    ? "Message sent successfully."
+                    : "Failed to send message. Please try again."}
                 </div>
               )}
 
-              {/* Name + Email fields */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <label
-                    htmlFor="name"
-                    className="text-sm font-medium text-foreground"
-                  >
+                  <label htmlFor="name" className={labelClass}>
                     Name
                   </label>
                   <Input
@@ -214,14 +169,11 @@ export function Contact() {
                     onChange={handleChange}
                     placeholder="Your name"
                     required
-                    className="focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
+                    className={fieldClass}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label
-                    htmlFor="email"
-                    className="text-sm font-medium text-foreground"
-                  >
+                  <label htmlFor="email" className={labelClass}>
                     Email
                   </label>
                   <Input
@@ -232,17 +184,13 @@ export function Contact() {
                     onChange={handleChange}
                     placeholder="Your email"
                     required
-                    className="focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
+                    className={fieldClass}
                   />
                 </div>
               </div>
 
-              {/* Subject field */}
               <div className="space-y-2">
-                <label
-                  htmlFor="subject"
-                  className="text-sm font-medium text-foreground"
-                >
+                <label htmlFor="subject" className={labelClass}>
                   Subject
                 </label>
                 <Input
@@ -252,16 +200,12 @@ export function Contact() {
                   onChange={handleChange}
                   placeholder="Subject"
                   required
-                  className="focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
+                  className={fieldClass}
                 />
               </div>
 
-              {/* Message textarea field */}
               <div className="space-y-2">
-                <label
-                  htmlFor="message"
-                  className="text-sm font-medium text-foreground"
-                >
+                <label htmlFor="message" className={labelClass}>
                   Message
                 </label>
                 <Textarea
@@ -269,27 +213,29 @@ export function Contact() {
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
-                  placeholder="Your message"
-                  className="min-h-32 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-300"
+                  placeholder="Tell me about your project"
                   required
+                  className={cn(fieldClass, "min-h-32 resize-none")}
                 />
               </div>
 
-              {/* Submit button and tagline grouped together to fix spacing issue */}
-              <div className="space-y-3 pt-2">
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-orange-500 hover:bg-orange-600 transition-all duration-300 text-white disabled:opacity-70 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] rounded-lg border-0 cursor-pointer"
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="group inline-flex cursor-pointer items-center gap-5 disabled:opacity-60"
+              >
+                <span className="glow-btn grid h-16 w-16 place-items-center rounded-full border border-white/60 transition-colors duration-300 group-hover:border-primary group-hover:text-primary-ink group-disabled:border-white/60 group-disabled:text-current">
+                  <ArrowUpRight size={20} strokeWidth={1.25} />
+                </span>
+                <span
+                  className={cn(
+                    "text-[10px] font-medium uppercase tracking-[0.3em]",
+                    isSubmitting && "animate-pulse",
+                  )}
                 >
-                  <span className={cn(isSubmitting && "animate-pulse")}>
-                    {isSubmitting ? "Sending..." : "Send Message"}
-                  </span>
-                </Button>
-                <p className="text-center text-muted-foreground text-xs leading-relaxed">
-                  Let’s create something great together.
-                </p>
-              </div>
+                  {isSubmitting ? "Sending..." : "Send message"}
+                </span>
+              </button>
             </form>
           </div>
         </div>
