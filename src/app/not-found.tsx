@@ -1,60 +1,69 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
-import { useEffect } from "react";
-import { ArrowLeft, Home } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowUpRight } from "lucide-react";
+import { Header } from "@/components/Header";
+import { SkyBackground } from "@/components/SkyBackground";
+
+export const metadata: Metadata = {
+  title: "Page not found — windyoncloud",
+  robots: { index: false },
+};
+
+const shortcuts = [
+  { href: "/", label: "Home", note: "Start from the top" },
+  { href: "/projects", label: "Projects", note: "Everything I have built" },
+  { href: "/#contact", label: "Contact", note: "Say hello" },
+];
 
 export default function NotFound() {
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      console.error(
-        "404 Error: User attempted to access non-existent route:",
-        window.location.pathname,
-      );
-    }
-  }, []);
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4 transition-colors duration-300">
-      <div className="relative max-w-md w-full text-center space-y-8">
-        {/* Animated Background Blur */}
-        <div className="absolute -top-12 -left-12 w-48 h-48 bg-orange-500/10 dark:bg-orange-500/5 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-rose-500/10 dark:bg-rose-500/5 rounded-full blur-3xl animate-pulse delay-75"></div>
+    <div className="page-sky relative isolate flex min-h-screen flex-col overflow-hidden text-foreground">
+      <SkyBackground />
+      <Header />
 
-        <div className="relative bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-850 rounded-2xl p-8 shadow-xl">
-          <h1 className="text-8xl font-extrabold bg-gradient-to-r from-orange-500 via-amber-500 to-rose-500 text-transparent bg-clip-text">
-            404
-          </h1>
-          <h2 className="text-2xl font-bold mt-4 text-slate-800 dark:text-slate-100">
-            Page Not Found
-          </h2>
-          <p className="text-slate-500 dark:text-slate-400 mt-2 mb-8">
-            Oops! The page you are looking for doesn&apos;t exist or has been
-            moved.
-          </p>
+      <main className="container flex max-w-7xl flex-1 flex-col items-center justify-center pb-16 text-center pt-32 md:pt-40">
+        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+          Error 404 — page not found
+        </p>
+        <h1 className="text-sky title-glow font-display text-[clamp(7rem,26vw,20rem)] font-light leading-[0.85] tracking-tight">
+          404<span className="accent">.</span>
+        </h1>
+        <p className="mt-2 font-serif text-2xl font-light italic text-foreground/90 md:text-4xl">
+          this page drifted away.
+        </p>
+        <p className="mt-4 max-w-md text-balance text-sm leading-relaxed text-muted-foreground">
+          The link may be old or mistyped. One of these should get you back on
+          course.
+        </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button
-              variant="outline"
-              asChild
-              className="flex items-center gap-2 border-gray-200 dark:border-gray-800 hover:bg-orange-50 dark:hover:bg-orange-950/20 hover:text-orange-500 dark:hover:text-orange-400 hover:border-orange-500/30 cursor-pointer"
+        <ul className="mt-12 grid w-full max-w-4xl border-t text-left sm:grid-cols-3">
+          {shortcuts.map((s) => (
+            <li
+              key={s.href}
+              className="border-b sm:border-b-0 sm:[&:not(:first-child)]:border-l"
             >
-              <button onClick={() => window.history.back()}>
-                <ArrowLeft className="w-4 h-4" /> Go Back
-              </button>
-            </Button>
-            <Button
-              asChild
-              className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white hover:from-orange-600 hover:to-rose-600 shadow-md hover:shadow-orange-500/20 cursor-pointer"
-            >
-              <Link href="/">
-                <Home className="w-4 h-4" /> Back to Home
+              <Link
+                href={s.href}
+                className="group flex items-center justify-between gap-4 py-6 sm:px-6"
+              >
+                <span>
+                  <span className="block font-display text-2xl font-extralight transition-colors group-hover:text-primary-ink">
+                    {s.label}
+                  </span>
+                  <span className="mt-1 block font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                    {s.note}
+                  </span>
+                </span>
+                <ArrowUpRight
+                  size={18}
+                  strokeWidth={1.25}
+                  className="shrink-0 transition-transform duration-500 group-hover:-translate-y-1 group-hover:translate-x-1"
+                />
               </Link>
-            </Button>
-          </div>
-        </div>
-      </div>
+            </li>
+          ))}
+        </ul>
+      </main>
     </div>
   );
 }
