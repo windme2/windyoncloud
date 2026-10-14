@@ -1,65 +1,33 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Terminal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface IntroTerminalProps {
   onComplete: () => void;
+  onSkip: () => void;
 }
 
-interface LogLine {
-  text: string;
-  className?: string;
+interface Step {
+  cmd: string;
+  out: { text: string; className?: string }[];
 }
 
-/**
- * IntroTerminal Component.
- * Implements a mock CLI booting environment before accessing the portfolio home page.
- * Uses sessionStorage to prevent looping on reload within the same browser tab session.
- */
-export function IntroTerminal({ onComplete }: IntroTerminalProps) {
-  const [typedText, setTypedText] = useState("");
-  const [logs, setLogs] = useState<LogLine[]>([]);
-  const [step, setStep] = useState(0); // 0: typing, 1: printing logs, 2: fade-out
-  const terminalEndRef = useRef<HTMLDivElement>(null);
-
-  const commandToType = "npm run dev";
-
-  // Handle typing effect for the bootstrap command
-  useEffect(() => {
-    if (step !== 0) return;
-
-    let currentIndex = 0;
-    const typingInterval = setInterval(() => {
-      if (currentIndex < commandToType.length) {
-        const nextChar = commandToType[currentIndex];
-        setTypedText((prev) => prev + nextChar);
-        currentIndex++;
-      } else {
-        clearInterval(typingInterval);
-        // Completed typing, wait briefly then transition to booting log printout
-        setTimeout(() => setStep(1), 500);
-      }
-    }, 75); // Snappy human typing speed
-
-    return () => clearInterval(typingInterval);
-  }, [step]);
-
-  // Handle printing log sequences sequentially
-  useEffect(() => {
-    if (step !== 1) return;
-
-    const logMessages: LogLine[] = [
-      { text: "", className: "" },
+/** The original boot: one command, then the dev-server log. */
+const script: Step[] = [
+  {
+    cmd: "npm run dev",
+    out: [
+      { text: " ", className: "" },
       {
         text: "> windyoncloud@0.1.0 dev",
-        className: "text-zinc-500 font-medium",
+        className: "text-zinc-400 font-medium",
       },
-      { text: "> next dev", className: "text-zinc-500 font-medium" },
-      { text: "", className: "" },
+      { text: "> next dev", className: "text-zinc-400 font-medium" },
+      { text: " ", className: "" },
       {
-        text: "▲ Next.js 16.2.9 (Turbopack)",
+        text: "\u25B2 Next.js 16.2.9 (Turbopack)",
         className: "text-zinc-100 font-bold",
       },
       {
@@ -67,61 +35,95 @@ export function IntroTerminal({ onComplete }: IntroTerminalProps) {
         className: "text-sky-400",
       },
       { text: "  - Environments: .env.local", className: "text-zinc-400" },
-      { text: "", className: "" },
-      { text: "✓ Ready in 1.8s", className: "text-emerald-400 font-semibold" },
-    ];
+      { text: " ", className: "" },
+      {
+        text: "\u2713 Ready in 1.8s",
+        className: "text-emerald-400 font-semibold",
+      },
+    ],
+  },
+];
 
-    let logIndex = 0;
-    const logInterval = setInterval(() => {
-      if (logIndex < logMessages.length) {
-        const currentLog = logMessages[logIndex];
-        setLogs((prev) => [...prev, currentLog]);
-        logIndex++;
-      } else {
-        clearInterval(logInterval);
-        // Completed logging, wait briefly then trigger fade-out transition
-        setTimeout(() => {
-          setStep(2);
-          setTimeout(() => {
-            onComplete();
-          }, 650); // Wait for CSS opacity transition to complete
-        }, 1000);
-      }
-    }, 200); // Speed of printing server log printouts
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-    return () => clearInterval(logInterval);
-  }, [step, onComplete]);
+/**
+ * IntroTerminal: a short CLI boot (install -> build -> start) shown before the
+ * water-drop scene. The wrapper owns skipping; this only reports completion.
+ */
+export function IntroTerminal({ onComplete, onSkip }: IntroTerminalProps) {
+  const [lines, setLines] = useState<
+    { text: string; className?: string; prompt?: boolean }[]
+  >([]);
+  const [typing, setTyping] = useState("");
+  const [fading, setFading] = useState(false);
+  const endRef = useRef<HTMLDivElement>(null);
 
-  // Automatically scroll to the bottom of the log console on update
+  const [promptVisible, setPromptVisible] = useState(true);
+
   useEffect(() => {
-    terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [typedText, logs]);
-
-  // Handle manual skip using Spacebar or Escape keys
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === " " || e.key === "Escape") {
-        e.preventDefault();
-        onComplete();
-      }
+    let cancelled = false;
+    // human-ish keystroke timing: uneven gaps, slower at the start, a short hitch mid-word
+    const keyDelay = (i: number) => {
+      const base = 22 + Math.random() * 24;
+      return i === 1 ? base + 50 : i % 4 === 0 ? base + 20 : base;
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    (async () => {
+      await sleep(300); // blinking cursor on an empty prompt
+      for (const step of script) {
+        setPromptVisible(true);
+        for (let i = 1; i <= step.cmd.length; i++) {
+          if (cancelled) return;
+          setTyping(step.cmd.slice(0, i));
+          await sleep(keyDelay(i));
+        }
+        await sleep(150); // beat before pressing Enter
+        if (cancelled) return;
+        setLines((l) => [...l, { text: step.cmd, prompt: true }]);
+        setTyping("");
+        setPromptVisible(false); // the command is "running": no prompt until it finishes
+        await sleep(160);
+        for (const o of step.out) {
+          if (cancelled) return;
+          setLines((l) => [...l, o]);
+          await sleep(o.text.trim() === "" ? 30 : 70);
+        }
+      }
+      if (cancelled) return;
+      // stop on "Ready": no trailing prompt, a short hold, then out
+      await sleep(350);
+      setFading(true);
+      await sleep(300);
+      if (!cancelled) onComplete();
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [onComplete]);
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ block: "end" });
+  }, [lines, typing]);
+
+  const prompt = (
+    <>
+      <span className="text-emerald-500 font-bold">visitor@windyoncloud</span>
+      <span className="text-zinc-400">:</span>
+      <span className="text-sky-400">~</span>
+      <span className="text-zinc-400">$</span>{" "}
+    </>
+  );
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] bg-black flex items-center justify-center p-4 font-mono select-none transition-opacity duration-500 ease-in-out ${
-        step === 2 ? "opacity-0 pointer-events-none" : "opacity-100"
-      }`}
+      className={cn(
+        "intro-terminal fixed inset-0 z-[9999] bg-black flex items-center justify-center p-4 font-mono select-none transition-opacity duration-300 ease-in-out",
+        fading ? "opacity-0 pointer-events-none" : "opacity-100",
+      )}
     >
-      {/* CRT Retro Screen Layer */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(10,10,10,0.85)_0%,rgba(0,0,0,1)_100%)] pointer-events-none z-0" />
       <div className="absolute inset-0 bg-scanlines pointer-events-none z-10 opacity-15" />
 
-      {/* Terminal Box */}
-      <div className="w-full max-w-2xl bg-zinc-950/95 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl shadow-black/80 relative z-20 flex flex-col h-[400px]">
-        {/* Terminal Header */}
+      <div className="w-full max-w-[34rem] bg-zinc-950/95 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl shadow-black/80 relative z-20 flex flex-col h-[min(54vh,390px)]">
         <div className="bg-zinc-900 border-b border-zinc-800 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 rounded-full bg-rose-500/80" />
@@ -131,59 +133,45 @@ export function IntroTerminal({ onComplete }: IntroTerminalProps) {
           <div className="text-xs text-zinc-400 font-semibold flex items-center gap-1.5">
             <Terminal size={12} className="text-zinc-500" /> bash - windyoncloud
           </div>
-          <div className="w-10" /> {/* Spacer */}
+          <div className="w-10" />
         </div>
 
-        {/* Console Workspace */}
-        <div className="flex-1 p-6 overflow-y-auto text-left text-zinc-300 space-y-2 text-xs sm:text-sm leading-relaxed scrollbar-thin">
-          <div>
-            <span className="text-emerald-500 font-bold">
-              visitor@windyoncloud
-            </span>
-            <span className="text-zinc-400">:</span>
-            <span className="text-sky-400">~</span>
-            <span className="text-zinc-400">$</span>{" "}
-            <span className="text-white">{typedText}</span>
-            {step === 0 && (
-              <span className="animate-blink bg-zinc-400 text-transparent ml-0.5 inline-block w-2 h-4">
-                |
-              </span>
-            )}
-          </div>
-
-          {/* Render Boot Logs */}
-          {logs.map(
-            (log, idx) =>
-              log && (
-                <div
-                  key={idx}
-                  className={cn(
-                    "animate-fade-in min-h-[1.2rem] whitespace-pre",
-                    log.className,
-                  )}
-                >
-                  {log.text}
-                </div>
-              ),
-          )}
-
-          {step === 1 && (
-            <div className="flex items-center gap-1">
-              <span className="animate-blink bg-zinc-400 text-transparent inline-block w-2 h-4" />
+        <div className="flex-1 p-4 sm:p-6 overflow-y-auto text-left text-zinc-300 space-y-1 text-[10px] sm:text-[13px] leading-relaxed">
+          {lines.map((line, i) => (
+            <div
+              key={i}
+              className={cn(
+                "whitespace-pre-wrap break-all sm:break-normal",
+                line.className,
+              )}
+            >
+              {line.prompt ? (
+                <>
+                  {prompt}
+                  <span className="text-white">{line.text}</span>
+                </>
+              ) : (
+                line.text
+              )}
+            </div>
+          ))}
+          {promptVisible && (
+            <div>
+              {prompt}
+              <span className="text-white">{typing}</span>
+              <span className="animate-blink ml-0.5 inline-block h-4 w-2 bg-zinc-400 align-middle" />
             </div>
           )}
-
-          <div ref={terminalEndRef} />
+          <div ref={endRef} />
         </div>
 
-        {/* Skip controls Footer */}
-        <div className="bg-zinc-900 border-t border-zinc-800 px-4 py-2.5 flex items-center justify-between text-[10px] text-zinc-500">
-          <div>Press [Space] or [Esc] to skip</div>
+        <div className="flex items-center justify-between border-t border-zinc-800 bg-zinc-900 px-4 py-2.5 text-[10px] text-zinc-400">
+          <div className="hidden sm:block">Press [Space] or [Esc] to skip</div>
           <button
-            onClick={() => onComplete()}
-            className="hover:text-white transition-colors cursor-pointer"
+            onClick={onSkip}
+            className="cursor-pointer transition-colors hover:text-white"
           >
-            Skip Intro ❯
+            Skip Intro &#x276F;
           </button>
         </div>
       </div>
