@@ -64,7 +64,7 @@ export const skillsData = {
     },
     {
       name: ".NET Core",
-      icon: "devicon-plain:dotnetcore",
+      icon: "logos:dotnet",
       level: "Intermediate",
     },
     {
@@ -78,7 +78,7 @@ export const skillsData = {
       level: "Intermediate",
     },
   ],
-  databases: [
+  database: [
     {
       name: "SQLite",
       icon: "simple-icons:sqlite",
@@ -265,7 +265,7 @@ export const skillsData = {
 export const tabLabels = {
   frontend: "Frontend",
   backend: "Backend",
-  databases: "Databases",
+  database: "Database",
   dataAi: "Data & AI/ML",
   devops: "DevOps & Infrastructure",
   tools: "Tools",
