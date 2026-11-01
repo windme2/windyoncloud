@@ -1,302 +1,245 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Download, Mail } from "lucide-react";
-import { Github, Linkedin, Instagram } from "@/components/icons";
 import Image from "next/image";
-import { typingTexts } from "@/data/hero";
+import Link from "next/link";
+import { ArrowRight, Download } from "lucide-react";
+import { SocialLinks } from "@/components/SocialIcon";
+import { projects } from "@/data/projects";
+
+/** Pre-rendered cloud sprite (see public/assets/clouds). */
+function CloudSprite({
+  src,
+  className,
+  speed,
+  blur = 0,
+}: {
+  src: string;
+  className: string;
+  speed: number;
+  blur?: number;
+}) {
+  return (
+    <div
+      data-speed={speed}
+      aria-hidden="true"
+      className={`pointer-events-none absolute z-40 dark:hidden ${className}`}
+    >
+      <div
+        style={{
+          aspectRatio: "1300 / 600",
+          backgroundImage: `url(/assets/clouds/cloud-${src}.webp)`,
+          backgroundSize: "100% 100%",
+          filter: blur ? `blur(${blur}px)` : undefined,
+        }}
+      />
+    </div>
+  );
+}
+
+const nameClass =
+  "absolute inset-x-0 top-[17%] text-center font-display text-[clamp(4.5rem,24vw,21rem)] font-light leading-[0.85] tracking-tight md:top-[15vh] md:text-[clamp(4.5rem,21vw,21rem)]";
 
 /**
- * Hero section component.
- * Dynamic typing animation, profile picture neon cyan light glow,
- * social icon brand-colored overlays, and smooth scroll down controls.
+ * Hero — a cut-out portrait stands in front of the giant name (like a poster):
+ * the filled name sits behind the person, an outline copy sits in front so the
+ * name stays readable. Sun and clouds by day, moon and stars by night.
  */
 export function Hero() {
-  const [currentText, setCurrentText] = useState("");
-  const [roleIndex, setRoleIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  // Self-typing logic loop - state updates are deferred inside setTimeout to prevent synchronous rendering cascading warnings
-  useEffect(() => {
-    const activeRole = typingTexts[roleIndex];
-    let typeSpeed = isDeleting ? 40 : 100;
-
-    if (!isDeleting && charIndex === activeRole.length) {
-      typeSpeed = 1500; // Hold full text before deleting
-    }
-
-    const timer = setTimeout(() => {
-      if (!isDeleting && charIndex === activeRole.length) {
-        setIsDeleting(true);
-      } else if (isDeleting && charIndex === 0) {
-        setIsDeleting(false);
-        setRoleIndex((prev) => (prev + 1) % typingTexts.length);
-      } else {
-        setCurrentText(
-          isDeleting
-            ? activeRole.substring(0, charIndex - 1)
-            : activeRole.substring(0, charIndex + 1),
-        );
-        setCharIndex((prev) => (isDeleting ? prev - 1 : prev + 1));
-      }
-    }, typeSpeed);
-
-    return () => clearTimeout(timer);
-  }, [charIndex, isDeleting, roleIndex]);
+  const latest = projects[0];
 
   return (
-    <section
-      id="home"
-      className="min-h-screen flex items-center justify-center pt-32 md:pt-36 pb-20 md:pb-24 relative overflow-hidden bg-background dark:bg-black"
-    >
-      {/* Background soft ambient glowing orbs */}
-      <div className="absolute top-1/4 left-1/10 w-72 h-72 md:w-96 md:h-96 bg-orange-500/10 rounded-full blur-3xl animate-pulse-slow -z-10" />
-      <div className="absolute bottom-1/4 right-1/10 w-72 h-72 md:w-96 md:h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse-slow -z-10" />
+    <section id="home" className="relative overflow-x-clip text-foreground">
+      {/* Sun (day) / moon (night) glow behind the person */}
+      <div
+        aria-hidden="true"
+        data-speed="0.3"
+        data-mouse="-10,-8"
+        className="pointer-events-none absolute inset-x-0 top-[2vh] mx-auto h-[90vw] max-h-[900px] w-[90vw] max-w-[900px] md:top-[-6vh]"
+      >
+        <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(190,225,255,0.95)_0%,rgba(110,175,255,0.38)_38%,transparent_66%)] dark:bg-[radial-gradient(circle,rgba(190,198,255,0.4)_0%,rgba(120,110,230,0.14)_42%,transparent_66%)]" />
+      </div>
 
-      <div className="container max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-12 relative z-10">
-        {/* Profile Image with neon sky-blue/white pulsing light */}
-        <div className="order-1 md:order-2 md:w-1/2 flex justify-center md:justify-end reveal delay-200">
-          <div className="relative w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96">
-            {/* Blinking Cyan Neon Glow Layer */}
-            <div className="absolute -inset-2 bg-gradient-to-r from-cyan-400 via-sky-300 to-cyan-300 dark:to-white rounded-full blur-lg opacity-75 animate-pulse" />
-            <div className="relative w-full h-full rounded-full border-4 border-white dark:border-neutral-950 overflow-hidden shadow-2xl bg-neutral-900">
-              <Image
-                src="/assets/images/hero-1.webp"
-                alt="Intouch Charoenphon Profile"
-                fill
-                className="object-cover"
-                priority
-                sizes="(max-width: 768px) 256px, 384px"
-              />
-            </div>
-          </div>
+      {/* Stage: name + cut-out portrait */}
+      <div className="relative h-[56svh] min-h-[400px] [--ph:82%] [mask-image:linear-gradient(to_bottom,black_74%,transparent_100%)] md:h-screen md:[--ph:76%]">
+        {/* Name behind the person */}
+        <h1
+          aria-label="Intouch"
+          data-speed="0.22"
+          data-mouse="-8,0"
+          className={`${nameClass} text-sky title-glow z-10`}
+        >
+          Intouch
+        </h1>
+
+        {/* Cut-out portrait (the shadow lives on the wrapper so it follows the silhouette) */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex h-[var(--ph)] justify-center drop-shadow-[0_20px_40px_rgba(20,50,120,0.35)] dark:drop-shadow-[0_0_36px_rgba(150,160,255,0.5)]">
+          <Image
+            data-speed="0.06"
+            src="/assets/images/hero-cutout.webp"
+            alt="Portrait of Intouch Charoenphon"
+            width={1596}
+            height={1400}
+            priority
+            sizes="(max-width: 768px) 100vw, min(75vw, 1100px)"
+            className="h-full w-auto max-w-none object-contain [mask-image:linear-gradient(to_bottom,black_62%,transparent_96%)]"
+          />
         </div>
 
-        {/* Text Details Section */}
-        <div className="order-2 md:order-1 md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left space-y-4 md:space-y-8">
-          <div className="reveal space-y-2">
-            <h2 className="font-semibold text-lg md:text-xl text-slate-700 dark:text-slate-300">
-              Hello, I&apos;m
-            </h2>
-
-            {/* Blurry glow name backdrop container */}
-            <div className="relative inline-block">
-              <div className="absolute -inset-x-8 -inset-y-3 bg-gradient-to-r from-orange-500/10 via-rose-500/15 to-cyan-500/10 blur-3xl opacity-75 dark:opacity-90 pointer-events-none -z-10 rounded-full" />
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter bg-gradient-to-r from-orange-500 via-amber-500 to-rose-500 text-transparent bg-clip-text animate-gradient-text shadow-text select-none">
-                INTOUCH CHAROENPHON
-              </h1>
-            </div>
-
-            <p className="text-lg sm:text-xl md:text-2xl font-medium text-muted-foreground mt-2 min-h-[2.5rem] sm:min-h-[2rem] whitespace-nowrap overflow-hidden text-ellipsis">
-              {currentText}
-              <span className="animate-pulse text-orange-500 font-bold">|</span>
-            </p>
-          </div>
-
-          {/* Available for Work Badge */}
-          <div className="reveal delay-100">
-            <div className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-300 cursor-default">
-              <div className="w-2 h-2 bg-white rounded-full animate-ping"></div>
-              Available for Work
-            </div>
-          </div>
-
-          <p className="reveal delay-200 text-lg max-w-2xl text-slate-600 dark:text-slate-400 leading-relaxed text-balance">
-            A hybrid developer merging logistics operations and IT
-            infrastructure.
-            <br />
-            Fusing system automation, database management, and process
-            efficiency.
-          </p>
-
-          <div className="reveal delay-300 flex flex-wrap justify-center md:justify-start gap-4">
-            <Button
-              asChild
-              size="lg"
-              className="bg-orange-500 hover:bg-orange-600 text-white transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 rounded-lg border-0 cursor-pointer"
-            >
-              <a href="#contact">Contact Me</a>
-            </Button>
-
-            {/* Download CV button - dark mode theme responsive colors */}
-            <Button
-              variant="ghost"
-              asChild
-              size="lg"
-              className="transition-all duration-300 shadow-md 
-              bg-white dark:bg-zinc-900 
-              text-gray-800 dark:text-white 
-              hover:bg-orange-500 hover:text-white hover:border-orange-500 hover:shadow-orange-500/20
-              dark:hover:bg-orange-600 dark:hover:border-orange-600 dark:hover:shadow-orange-600/30
-              border border-black/10 dark:border-white/10
-              hover:scale-105 rounded-lg cursor-pointer"
-            >
-              <a
-                href="/assets/documents/CV_Intouch_Charoenphon.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2"
-              >
-                <Download size={18} />
-                <span>Download CV</span>
-              </a>
-            </Button>
-          </div>
-
-          {/* Social Icons Links - Brand specific colors override to prevent theme flash */}
-          <div className="reveal delay-400 flex gap-4 flex-wrap">
-            {/* GitHub */}
-            <Button
-              variant="outline"
-              size="icon"
-              asChild
-              className="group relative rounded-full border border-border bg-background overflow-hidden
-               transition-all duration-500 hover:shadow hover:bg-transparent hover:border-[#24292e] hover:text-white
-               focus-visible:ring-2 focus-visible:ring-[#24292e] focus-visible:ring-offset-2 focus-visible:ring-offset-background cursor-pointer"
-            >
-              <a
-                href="https://github.com/windme2"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub"
-                className="grid place-items-center w-10 h-10"
-              >
-                <span
-                  aria-hidden="true"
-                  className="absolute inset-0 translate-y-full group-hover:translate-y-0
-                   transition-transform duration-500 ease-out will-change-transform"
-                  style={{ backgroundColor: "#24292e" }}
-                />
-                <Github className="relative z-10 h-5 w-5 text-foreground transition-colors duration-500 group-hover:text-white" />
-              </a>
-            </Button>
-
-            {/* LinkedIn */}
-            <Button
-              variant="outline"
-              size="icon"
-              asChild
-              className="group relative rounded-full border border-border bg-background overflow-hidden
-               transition-all duration-500 hover:shadow hover:bg-transparent hover:border-[#0a66c2] hover:text-white
-               focus-visible:ring-2 focus-visible:ring-[#0a66c2] focus-visible:ring-offset-2 focus-visible:ring-offset-background cursor-pointer"
-            >
-              <a
-                href="https://linkedin.com/in/intouch-charoenphon-a89b21207/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="LinkedIn"
-                className="grid place-items-center w-10 h-10"
-              >
-                <span
-                  aria-hidden="true"
-                  className="absolute inset-0 translate-y-full group-hover:translate-y-0
-                   transition-transform duration-500 ease-out will-change-transform"
-                  style={{ backgroundColor: "#0a66c2" }}
-                />
-                <Linkedin className="relative z-10 h-5 w-5 text-foreground transition-colors duration-500 group-hover:text-white" />
-              </a>
-            </Button>
-
-            {/* Instagram */}
-            <Button
-              variant="outline"
-              size="icon"
-              asChild
-              className="group relative rounded-full border border-border bg-background overflow-hidden
-               transition-all duration-500 hover:shadow hover:bg-transparent hover:border-[#d6249f] hover:text-white
-               focus-visible:ring-2 focus-visible:ring-pink-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background cursor-pointer"
-            >
-              <a
-                href="https://instagram.com/withcrpn/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram"
-                className="grid place-items-center w-10 h-10"
-              >
-                <span
-                  aria-hidden="true"
-                  className="absolute inset-0 translate-y-full group-hover:translate-y-0
-                   transition-transform duration-500 ease-out will-change-transform"
-                  style={{
-                    backgroundImage:
-                      "radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)",
-                  }}
-                />
-                <Instagram className="relative z-10 h-5 w-5 text-foreground transition-colors duration-500 group-hover:text-white" />
-              </a>
-            </Button>
-
-            {/* Email */}
-            <Button
-              variant="outline"
-              size="icon"
-              asChild
-              className="group relative rounded-full border border-border bg-background overflow-hidden
-               transition-all duration-500 hover:shadow hover:bg-transparent hover:border-[#ea4335] hover:text-white
-               focus-visible:ring-2 focus-visible:ring-[#ea4335] focus-visible:ring-offset-2 focus-visible:ring-offset-background cursor-pointer"
-            >
-              <a
-                href="mailto:intouch.crp@gmail.com"
-                aria-label="Email"
-                className="grid place-items-center w-10 h-10"
-              >
-                <span
-                  aria-hidden="true"
-                  className="absolute inset-0 translate-y-full group-hover:translate-y-0
-                   transition-transform duration-500 ease-out will-change-transform"
-                  style={{ backgroundColor: "#ea4335" }}
-                />
-                <Mail className="relative z-10 h-5 w-5 text-foreground transition-colors duration-500 group-hover:text-white" />
-              </a>
-            </Button>
-          </div>
-        </div>
-
-        {/* Scroll indicator - uses custom high-fidelity jump-and-flash scroll-down animation */}
-        <div className="reveal delay-500 absolute bottom-2 left-1/2 transform -translate-x-1/2 animate-scroll-down hidden md:block">
-          <a
-            href="#about"
-            onClick={(e) => {
-              e.preventDefault();
-              const element = document.getElementById("about");
-              if (element) {
-                const headerOffset = 80;
-                const elementPosition = element.getBoundingClientRect().top;
-                const offsetPosition =
-                  elementPosition + window.pageYOffset - headerOffset;
-                window.scrollTo({
-                  top: offsetPosition,
-                  behavior: "smooth",
-                });
-              }
-            }}
-            className="text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-all duration-300 flex flex-col items-center gap-1 group cursor-pointer"
+        {/* Outline copy of the name, clipped to the person's silhouette so the name reads through the figure */}
+        <div
+          aria-hidden="true"
+          data-speed="0.06"
+          className="pointer-events-none absolute inset-0 z-30"
+          style={{
+            WebkitMaskImage: "url(/assets/images/hero-cutout.webp)",
+            maskImage: "url(/assets/images/hero-cutout.webp)",
+            WebkitMaskRepeat: "no-repeat",
+            maskRepeat: "no-repeat",
+            WebkitMaskSize: "auto var(--ph)",
+            maskSize: "auto var(--ph)",
+            WebkitMaskPosition: "50% 100%",
+            maskPosition: "50% 100%",
+          }}
+        >
+          <div
+            data-speed="0.16"
+            data-mouse="-8,0"
+            className={`${nameClass} text-transparent [-webkit-text-stroke:1.5px_rgba(255,255,255,0.8)]`}
           >
-            <span className="text-[10px] uppercase tracking-wider font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              Scroll Down
-            </span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              className="transition-transform duration-300"
-              style={{ filter: "drop-shadow(0 0 6px currentColor)" }}
-            >
+            Intouch
+          </div>
+        </div>
+
+        {/* Cloud sprites in front of the person (day only) — nearest one is soft for depth of field */}
+        <CloudSprite
+          src="a"
+          speed={-0.1}
+          blur={2}
+          className="-bottom-[22%] -left-[24%] w-[900px] max-w-[100%]"
+        />
+        <CloudSprite
+          src="b"
+          speed={-0.15}
+          blur={2}
+          className="-bottom-[26%] -right-[26%] w-[880px] max-w-[100%]"
+        />
+      </div>
+
+      {/* Copy: sits beside the person on desktop, below the stage on mobile */}
+      <div className="relative z-[45] px-6 pb-16 md:absolute md:bottom-[7vh] md:left-12 md:max-w-[22rem] md:px-0 md:pb-0 lg:left-20">
+        {/* availability: rotating text ring around a pulsing dot */}
+        <Link
+          href="/services"
+          aria-label="Available for work — see services"
+          className="reveal group relative mb-4 hidden h-28 w-28 md:block"
+        >
+          <svg
+            viewBox="0 0 120 120"
+            aria-hidden="true"
+            className="h-full w-full animate-[spin_20s_linear_infinite] text-foreground transition-colors group-hover:text-primary-ink"
+          >
+            <defs>
               <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                id="avail-circle"
+                d="M60,60 m-40,0 a40,40 0 1,1 80,0 a40,40 0 1,1 -80,0"
               />
-            </svg>
+            </defs>
+            <text
+              fontSize="10.5"
+              fill="currentColor"
+              fontFamily="var(--font-mono)"
+            >
+              <textPath
+                href="#avail-circle"
+                textLength="249"
+                lengthAdjust="spacing"
+              >
+                AVAILABLE FOR WORK • OPEN TO PROJECTS •
+              </textPath>
+            </text>
+          </svg>
+          <span className="absolute inset-0 grid place-items-center">
+            <span className="relative flex h-3 w-3">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+              <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-400" />
+            </span>
+          </span>
+        </Link>
+        <p className="reveal font-serif text-3xl font-light italic text-primary-ink md:text-4xl">
+          software engineer.
+        </p>
+        <p className="reveal delay-100 mt-5 text-balance text-sm leading-relaxed text-muted-foreground sm:text-pretty">
+          Web products that are quick to understand
+          <br className="hidden sm:block" /> and solid underneath.
+          <br className="hidden sm:block" /> Formerly logistics and IT
+          infrastructure.
+        </p>
+
+        {/* actions side by side */}
+        <div className="reveal delay-200 mt-7 flex flex-wrap items-center gap-3">
+          <a
+            href="#contact"
+            className="inline-flex items-center gap-2 rounded-full border border-primary bg-primary px-6 py-3 text-[10px] font-medium uppercase tracking-[0.25em] text-primary-foreground transition-colors duration-300 hover:border-foreground hover:bg-foreground hover:text-background dark:hover:text-background"
+          >
+            Contact me
+          </a>
+          <a
+            href="/assets/documents/CV_Intouch_Charoenphon.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border px-6 py-3 text-[10px] font-medium uppercase tracking-[0.25em] transition-colors hover:border-foreground hover:bg-foreground hover:text-background"
+          >
+            <Download size={12} /> Download CV
           </a>
         </div>
+        {/* social icons under the actions: secondary to Contact me, brand colour fills in on hover */}
+        <SocialLinks className="reveal delay-300 mt-6" />
       </div>
+
+      {/* Scroll cue */}
+      <a
+        href="#about"
+        aria-label="Scroll down"
+        className="absolute bottom-4 left-1/2 z-[46] hidden -translate-x-1/2 flex-col items-center gap-2 text-[9px] uppercase tracking-[0.3em] text-foreground/75 transition-colors hover:text-foreground md:bottom-6 md:flex"
+      >
+        Scroll
+        <span className="relative block h-10 w-px overflow-hidden bg-foreground/25">
+          <span className="absolute left-0 top-0 h-4 w-px animate-[scroll-line_1.8s_ease-in-out_infinite] bg-foreground" />
+        </span>
+      </a>
+
+      {/* Latest project card */}
+      {latest && (
+        <a
+          href="#projects"
+          className="group glass absolute bottom-8 right-6 z-[45] hidden items-center gap-4 rounded-2xl p-2 pr-5 transition-[translate,box-shadow,border-color] duration-500 ease-out hover:-translate-y-1 hover:border-primary/50 hover:shadow-[0_18px_40px_-12px_hsl(var(--primary)/0.45)] md:flex lg:right-12"
+        >
+          <span className="relative h-16 w-16 overflow-hidden rounded-xl">
+            <Image
+              src={latest.image}
+              alt={latest.title}
+              fill
+              className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+              sizes="64px"
+            />
+          </span>
+          <span>
+            <span className="block text-[9px] uppercase tracking-[0.25em] text-muted-foreground">
+              Latest project
+            </span>
+            <span className="mt-0.5 block font-display text-base font-light leading-tight">
+              {latest.title.split(" - ")[0]}
+            </span>
+            <span className="mt-1 inline-flex items-center gap-1 text-[9px] uppercase tracking-[0.25em] text-primary-ink">
+              View{" "}
+              <ArrowRight
+                size={10}
+                className="transition-transform duration-300 group-hover:translate-x-1"
+              />
+            </span>
+          </span>
+        </a>
+      )}
     </section>
   );
 }
