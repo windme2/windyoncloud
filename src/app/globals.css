@@ -12,6 +12,7 @@
   --color-popover-foreground: hsl(var(--popover-foreground));
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-ink: hsl(var(--primary-ink));
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
   --color-muted: hsl(var(--muted));
@@ -26,7 +27,10 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
-  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  /* --font-thai (Prompt, root layout) only covers Thai glyphs; Latin always comes from Outfit */
+  --font-sans: var(--font-outfit), var(--font-thai, ui-sans-serif), system-ui, sans-serif;
+  --font-display: var(--font-outfit), var(--font-thai, ui-sans-serif), system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), Georgia, "Times New Roman", serif;
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -179,86 +183,258 @@
   }
 }
 
-/* ─── CSS Variables (Light) ─── */
+/* ─── Light: daytime sky — sky blue ink, warm sun-orange accent ─── */
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  --background: 210 100% 97%;
+  --foreground: 224 72% 17%;
 
-  --card: 0 0% 98%;
-  --card-foreground: 222.2 84% 4.9%;
+  --card: 210 100% 98%;
+  --card-foreground: 224 72% 17%;
 
-  --popover: 0 0% 98%;
-  --popover-foreground: 222.2 84% 4.9%;
+  --popover: 210 100% 98%;
+  --popover-foreground: 224 72% 17%;
 
+  /* fills: bright sun-orange with navy text on it (5.7:1; white on this orange was only 2.85:1) */
   --primary: 24 95% 53%;
-  --primary-foreground: 0 0% 100%;
+  --primary-foreground: 224 72% 17%;
+  /* orange as TEXT: burnt orange, still orange rather than brown. 5.3:1 on the pale sky,
+     ~3.1:1 on the mid-blue sky (enough for large text, like the hero's serif line) */
+  --primary-ink: 21 95% 36%;
 
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
+  --secondary: 211 80% 92%;
+  --secondary-foreground: 224 72% 17%;
 
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
+  --muted: 211 80% 92%;
+  --muted-foreground: 222 34% 28%; /* stays 4.5:1 on the mid-day sky, not only on white */
 
   --accent: 24 95% 53%;
-  --accent-foreground: 0 0% 100%;
+  --accent-foreground: 224 72% 17%;
 
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive: 0 70% 48%;
+  --destructive-foreground: 0 0% 100%;
 
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
+  --border: 213 65% 78%;
+  --input: 213 65% 78%;
   --ring: 24 95% 53%;
 
   --radius: 0.5rem;
+
+  /* heading gradient (top → bottom) */
+  --ink-1: #0a2a78;
+  /* deep enough that letter bottoms stay visible on the day sky (~4:1, was #2c78e6 ~2:1) */
+  --ink-2: #1a56c9;
 }
 
-/* ─── CSS Variables (Dark) ─── */
+/* ─── Dark: night sky — indigo ink, starlight-gold accent ─── */
 .dark {
-  --background: 0 0% 0%;
-  --foreground: 0 0% 98%;
+  --background: 236 62% 7%;
+  --foreground: 42 45% 95%;
 
-  --card: 0 0% 5%;
-  --card-foreground: 0 0% 98%;
+  --card: 236 52% 12%;
+  --card-foreground: 42 45% 95%;
 
-  --popover: 0 0% 5%;
-  --popover-foreground: 0 0% 98%;
+  --popover: 236 52% 12%;
+  --popover-foreground: 42 45% 95%;
 
-  --primary: 24 95% 53%;
-  --primary-foreground: 0 0% 100%;
+  --primary: 43 96% 64%;
+  --primary-foreground: 236 62% 8%;
+  --primary-ink: 43 96% 64%;
 
-  --secondary: 0 0% 10%;
-  --secondary-foreground: 0 0% 98%;
+  --secondary: 236 40% 17%;
+  --secondary-foreground: 42 45% 95%;
 
-  --muted: 0 0% 10%;
-  --muted-foreground: 0 0% 64.9%;
+  --muted: 236 40% 17%;
+  --muted-foreground: 232 28% 74%;
 
-  --accent: 24 95% 53%;
-  --accent-foreground: 0 0% 100%;
+  --accent: 43 96% 64%;
+  --accent-foreground: 236 62% 8%;
 
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
+  --destructive: 0 70% 58%;
+  --destructive-foreground: 0 0% 100%;
 
-  --border: 0 0% 12%;
-  --input: 0 0% 12%;
-  --ring: 24 95% 53%;
+  --border: 236 38% 26%;
+  --input: 236 38% 26%;
+  --ring: 43 96% 64%;
+
+  --ink-1: #ffffff;
+  --ink-2: #b4bdff;
+}
+
+/* ─── Sky backgrounds ─── */
+.page-sky {
+  background: #8ec5ff; /* the day-sky layers in SkyBackground sit above this */
+}
+.sky-morning { background: linear-gradient(180deg, #7db7ff 0%, #bcdcff 45%, #f1f8ff 100%); }
+/* afternoon/sunset tops kept light enough for small muted text (4.5:1) */
+.sky-afternoon { background: linear-gradient(180deg, #5fa2f6 0%, #8ac2fc 50%, #d6eaff 100%); }
+.sky-sunset { background: linear-gradient(180deg, #a3aff4 0%, #cdb3ef 38%, #ffbfa6 74%, #ffdfb6 100%); }
+.dark .page-sky {
+  background:
+    radial-gradient(ellipse 80% 22% at 50% 100%, rgba(255, 190, 90, 0.2), transparent 70%),
+    linear-gradient(180deg, #02030f 0%, #080d3a 34%, #14135a 68%, #2a1a63 92%, #3d2466 100%);
+}
+
+/* Heading gradient text (colours come from --ink-1 / --ink-2) */
+.text-sky {
+  background: linear-gradient(180deg, var(--ink-1) 10%, var(--ink-2) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.text-sky .accent {
+  -webkit-text-fill-color: hsl(var(--primary-ink));
+  color: hsl(var(--primary-ink));
+}
+.person-fx {
+  /* warm rim light from the sun + soft contact shadow */
+  filter: drop-shadow(-2px -2px 0 rgba(235, 246, 255, 0.95))
+    drop-shadow(0 34px 34px rgba(20, 50, 130, 0.42));
+}
+.dark .person-fx {
+  /* cool moonlight rim + violet glow */
+  filter: drop-shadow(-2px -2px 0 rgba(190, 200, 255, 0.55))
+    drop-shadow(0 0 40px rgba(130, 140, 255, 0.5));
+}
+.title-glow {
+  text-shadow: 0 26px 38px rgba(20, 60, 160, 0.3);
+}
+.dark .title-glow {
+  text-shadow: 0 0 40px rgba(170, 160, 255, 0.45);
+}
+
+/* Clouds are pre-rendered sprites (public/assets/clouds) — see SkyBackground */
+@keyframes cloud-drift {
+  from { transform: translate3d(-35vw, 0, 0); }
+  to { transform: translate3d(135vw, 0, 0); }
+}
+
+/* Stars: two single-element layers (box-shadow field), twinkling by opacity */
+.stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 9999px;
+  background: transparent;
+}
+.stars-a {
+  width: 1.5px;
+  height: 1.5px;
+  animation: twinkle 5s ease-in-out infinite;
+}
+.stars-b {
+  width: 2.5px;
+  height: 2.5px;
+  animation: twinkle 7s ease-in-out -3s infinite;
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+.shooting-star {
+  position: absolute;
+  height: 1px;
+  width: 140px;
+  background: linear-gradient(90deg, transparent, #fff);
+  opacity: 0;
+  animation: shoot 9s ease-in infinite;
+}
+@keyframes shoot {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(-28deg); }
+  4% { opacity: 1; }
+  12% { opacity: 0; transform: translate3d(-420px, 220px, 0) rotate(-28deg); }
+  100% { opacity: 0; }
+}
+
+/* Glass panels — layered shadows give them elevation; no backdrop-filter
+   (blur over scrolling content is the most expensive thing on this page). */
+.glass {
+  background: linear-gradient(145deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04));
+  border: 1px solid rgba(190, 200, 255, 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.32),
+    inset 0 -1px 0 rgba(0,0,0,0.25),
+    0 2px 4px rgba(0, 0, 20, 0.25),
+    0 18px 36px -12px rgba(0, 0, 30, 0.55),
+    0 50px 80px -30px rgba(60, 50, 200, 0.35);
+}
+:root:not(.dark) .glass {
+  background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.62));
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    inset 0 -1px 0 rgba(110, 150, 230, 0.25),
+    0 2px 4px rgba(30, 80, 160, 0.08),
+    0 16px 32px -10px rgba(30, 80, 160, 0.22),
+    0 46px 70px -28px rgba(30, 80, 160, 0.32);
+}
+.glass-solid {
+  background: hsl(var(--background) / 0.94);
+  border: 1px solid rgba(190, 200, 255, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    0 4px 8px rgba(0, 0, 20, 0.25),
+    0 30px 60px -16px rgba(0, 5, 40, 0.6),
+    0 70px 100px -40px rgba(60, 50, 200, 0.4);
+}
+:root:not(.dark) .glass-solid {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: #fff;
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 4px 8px rgba(30, 80, 160, 0.1),
+    0 28px 56px -14px rgba(30, 80, 160, 0.3),
+    0 70px 100px -40px rgba(30, 80, 160, 0.35);
+}
+/* Day: blue halo instead of the accent colour */
+:root:not(.dark) .glow-btn {
+  box-shadow:
+    0 0 0 6px rgba(120, 180, 255, 0.22),
+    0 0 34px rgba(90, 160, 255, 0.55);
+}
+.glow-btn {
+  background: transparent;
+  box-shadow: 0 0 28px hsl(var(--primary) / 0.28);
+}
+
+@media (max-width: 767px) {
+  .reveal-clip { --clip-r: 0px; }
+}
+
+/* ─── Lenis smooth scroll ─── */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  /* keep the scrollbar track while stopped, so the page width never changes (no sideways jump) */
+  overflow-y: scroll;
+  overflow-x: clip;
 }
 
 /* ─── Base ─── */
 * {
   border-color: hsl(var(--border));
-  scroll-behavior: smooth;
 }
 
 body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: "Inter", sans-serif;
+  font-family: var(--font-outfit), var(--font-thai, ui-sans-serif), system-ui, sans-serif;
+  font-weight: 300;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 html {
-  scroll-behavior: smooth;
+  /* keep the layout width constant when scrolling is locked (menu / intro), so nothing shifts */
+  scrollbar-gutter: stable;
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
@@ -301,16 +477,61 @@ html {
 
 .reveal {
   opacity: 0;
-  transform: translateY(40px) scale(0.96);
+  transform: translate3d(0, 36px, 0);
   transition:
-    opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Cards that tip up out of the page (perspective comes from the element) */
+/* Cards that tip up / slide in. Keyframes (not transitions) so a stagger delay
+   (--d) only affects the entrance, never hover. */
+.reveal-3d {
+  opacity: 0;
+}
+.reveal-3d.reveal-visible {
+  animation: tip-up 1s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0ms) both;
+}
+.reveal-3d.reveal-slide-left.reveal-visible {
+  animation-name: slide-from-left;
+}
+.reveal-3d.reveal-slide-right.reveal-visible {
+  animation-name: slide-from-right;
+}
+@keyframes tip-up {
+  from { opacity: 0; transform: perspective(1100px) rotateX(10deg) translate3d(0, 40px, 0); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes slide-from-left {
+  from { opacity: 0; transform: translate3d(-32px, 16px, 0); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes slide-from-right {
+  from { opacity: 0; transform: translate3d(32px, 16px, 0); }
+  to { opacity: 1; transform: none; }
 }
 
-.reveal-visible {
-  opacity: 1 !important;
-  transform: translateY(0) scale(1) !important;
+.reveal.reveal-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Image wipe-in. The observed element stays unclipped (IntersectionObserver
+   ignores fully clipped targets); its first child does the wiping. */
+.reveal-clip > :first-child {
+  clip-path: inset(0 0 100% 0 round var(--clip-r, 1.25rem));
+  transition: clip-path 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-clip.reveal-visible > :first-child {
+  clip-path: inset(0 0 0 0 round var(--clip-r, 1.25rem));
+}
+/* Heading text rising out of a mask */
+.rise {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+}
+.reveal-visible .rise {
+  transform: none;
 }
 
 .animate-gradient-text {
@@ -389,15 +610,6 @@ html {
   animation: tab-smooth-fade 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
 .mask-gradient-sides {
   mask-image: linear-gradient(
     to right,
@@ -421,6 +633,10 @@ html {
   animation: marquee 45s linear infinite;
 }
 
+.animate-marquee:hover {
+  animation-play-state: paused !important;
+}
+
 /* Container utility */
 .container {
   width: 100%;
@@ -433,4 +649,406 @@ html {
   .container {
     max-width: 1400px;
   }
+}
+
+/* Scroll-progress bar: deep blue → sky by day, gold → rose by night */
+.scroll-progress {
+  background: linear-gradient(90deg, #1d4ed8, #38bdf8);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+}
+.dark .scroll-progress {
+  background: linear-gradient(90deg, #f5c542, #ffe38a);
+  box-shadow: 0 0 12px rgba(255, 215, 90, 0.6);
+}
+
+/* Cursor spotlight on cards (position set by ScrollReveal) */
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    380px circle at var(--sx, 50%) var(--sy, 50%),
+    hsl(var(--foreground) / 0.07),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.spotlight:hover::before {
+  opacity: 1;
+}
+
+/* Intro: the real header logo stays hidden until the intro name lands on it */
+#site-logo {
+  transition: opacity 0.7s ease;
+}
+html[data-intro="on"] #site-logo {
+  opacity: 0;
+}
+
+/* Returning visit / reduced motion (flag set by an inline script in the root layout before first
+   paint): the intro overlays never show, even for the moment before React hydrates */
+html[data-intro-seen] .intro-terminal,
+html[data-intro-seen] .intro-stage {
+  display: none;
+}
+
+/* ─── Intro: water-drop splash (IntroSplash) → iris reveal ─── */
+.intro-stage {
+  --sky-top: #9bbcff;
+  --sky-bot: #d2e1ff;
+  --splash-fg: #141a4a;
+  --splash-ring: rgba(20, 26, 74, 0.45);
+  --splash-ink: #1c2568;
+  --splash-drop: radial-gradient(circle at 35% 28%, #7c8be0, #1c2568 72%);
+  --splash-shadow: 0 2px 6px rgba(20, 26, 74, 0.28);
+  background: linear-gradient(180deg, var(--sky-top), var(--sky-bot));
+}
+.dark .intro-stage {
+  --sky-top: #04051a;
+  --sky-bot: #11134f;
+  --splash-fg: #f6f3ef;
+  --splash-ring: rgba(200, 206, 255, 0.5);
+  --splash-ink: #e9ebff;
+  --splash-drop: #e9ebff;
+  --splash-shadow: 0 0 14px 3px rgba(160, 172, 255, 0.6);
+}
+.splash-drop {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--splash-drop);
+  box-shadow: var(--splash-shadow);
+}
+.splash-ring {
+  position: absolute;
+  border: 1px solid var(--splash-ring);
+  border-radius: 50%;
+  opacity: 0;
+}
+.splash-ch {
+  display: inline-block;
+  font-weight: 400;
+  color: var(--splash-ink);
+  transition: color 0.7s ease;
+  will-change: transform;
+}
+.splash-ch.soft {
+  font-weight: 300;
+}
+.splash-ch.settled {
+  color: var(--splash-fg);
+}
+.splash-ch.soft.settled {
+  color: color-mix(in srgb, var(--splash-fg) 70%, transparent);
+}
+.splash-line {
+  height: 1px;
+  background: var(--splash-ring);
+  transform: scaleX(0);
+}
+/* Exit: the main page opens as a circle from the splash point, over the still scene */
+.page-iris {
+  position: relative;
+  z-index: 9999;
+  animation: iris-reveal 1.5s cubic-bezier(0.65, 0, 0.3, 1) forwards;
+}
+@keyframes iris-reveal {
+  from { clip-path: circle(0px at var(--ix, 50vw) var(--iy, 50vh)); }
+  to { clip-path: circle(var(--R) at var(--ix, 50vw) var(--iy, 50vh)); }
+}
+
+@keyframes scroll-line {
+  0% { transform: translateY(-100%); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(260%); opacity: 0; }
+}
+
+/* Full-screen menu open: the overlay swallows touch gestures so the page behind never moves.
+   Overflow is left alone on purpose: changing it resizes the mobile viewport and shifts fixed UI. */
+html.menu-open {
+  overscroll-behavior: none;
+}
+#mobile-menu {
+  touch-action: none;
+}
+
+/* ─── Landing pages strip ───
+   Desktop: endless drift (list is rendered twice, so -50% loops seamlessly), pauses on hover/focus.
+   Phones and reduced motion: a swipeable row that snaps card by card, copies hidden. */
+@keyframes marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+/* Landing card frame: the glass look without the deep stacked shadows, which are
+   costly to repaint on ten moving cards (they made hover stutter) */
+.landing-frame {
+  background: linear-gradient(145deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04));
+  border: 1px solid rgba(190, 200, 255, 0.26);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.32), 0 10px 24px -12px rgba(0, 0, 30, 0.55);
+}
+:root:not(.dark) .landing-frame {
+  background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.62));
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 10px 24px -12px rgba(20, 50, 120, 0.35);
+}
+.marquee {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.marquee::-webkit-scrollbar {
+  display: none;
+}
+.marquee-track {
+  padding-inline: 1.5rem;
+}
+.marquee-track > li {
+  scroll-snap-align: center;
+}
+.marquee-track > li[aria-hidden] {
+  display: none;
+}
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .marquee {
+    overflow: hidden;
+    scroll-snap-type: none;
+    mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+  }
+  .marquee-track {
+    padding-inline: 0;
+    animation: marquee var(--marquee-duration, 45s) linear infinite;
+    will-change: transform;
+  }
+  .marquee-track > li[aria-hidden] {
+    display: block;
+  }
+  /* hover / focus: <Marquee> eases the playback rate to 0 (a smooth stop, not a jolt) */
+}
+
+/* ─── Header ───
+   Phones: a fixed glass capsule from the start (the menu button's centre sits at 41px / 41px from the
+   top-right corner, which the menu's circle reveal opens from).
+   Desktop: a plain transparent bar at the top; as --hp goes 0 -> 1 (set by <Header> from scroll) a glass
+   layer behind it closes in to a 62rem capsule and the logo / nav slide in with it. Only the layer's
+   insets + opacity and two translates change, so the header itself never re-lays out. */
+.site-bar {
+  position: relative;
+  isolation: isolate;
+}
+.site-bar::before {
+  border: 1px solid hsl(var(--foreground) / 0.1);
+  background: hsl(var(--background) / 0.72);
+  box-shadow: 0 10px 30px -12px rgb(10 20 70 / 0.35);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+.dark .site-bar::before {
+  border-color: rgb(255 255 255 / 0.12);
+  background: rgb(11 13 46 / 0.7);
+  box-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.7);
+}
+@media (max-width: 767.98px) {
+  .site-header {
+    padding: 0.75rem 0.75rem 0;
+  }
+  .site-bar {
+    padding: 0.5rem 0.5rem 0.5rem 1.25rem;
+  }
+  .site-bar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: 999px;
+  }
+  .site-bar > .container {
+    padding: 0;
+    max-width: none;
+  }
+}
+@media (min-width: 768px) {
+  .site-bar {
+    padding-block: 1.5rem;
+  }
+  .site-bar::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: calc(var(--hp, 0) * 1rem);
+    bottom: calc(var(--hp, 0) * 1rem);
+    left: calc(var(--hp, 0) * var(--cap-x, 0px));
+    right: calc(var(--hp, 0) * var(--cap-x, 0px));
+    border-radius: 999px;
+    opacity: min(1, calc(var(--hp, 0) * 1.6));
+    will-change: left, right, top, bottom, opacity;
+  }
+  .bar-start {
+    translate: calc(var(--hp, 0) * var(--shift-l, 0px)) 0;
+  }
+  .bar-end {
+    translate: calc(var(--hp, 0) * var(--shift-r, 0px) * -1) 0;
+  }
+}
+
+
+/* ───────── Journey: a timeline that draws itself (driven by <Journey>: --p, --tip, data-lit, data-shown) ───────── */
+.tl-rail {
+  left: 11px;
+  translate: -50% 0;
+}
+@media (min-width: 1150px) {
+  .tl-rail { left: 50%; }
+}
+.tl-line {
+  background: linear-gradient(to bottom, hsl(var(--primary) / 0.2), hsl(var(--primary)));
+  box-shadow: 0 0 18px hsl(var(--primary) / 0.7);
+  scale: 1 var(--p, 0);
+}
+/* glowing head riding the tip of the line */
+.tl-head {
+  width: 9px;
+  height: 9px;
+  margin-top: -4.5px;
+  border-radius: 9999px;
+  background: hsl(var(--primary));
+  box-shadow: 0 0 0 4px hsl(var(--primary) / 0.18), 0 0 22px 4px hsl(var(--primary) / 0.75);
+  translate: -50% var(--tip, 0px);
+  opacity: min(1, calc(var(--p, 0) * 40));
+}
+:root:not(.dark) .tl-head { background: #fff; box-shadow: 0 0 0 3px hsl(var(--primary)), 0 0 22px 4px hsl(var(--primary) / 0.6); }
+
+/* nodes: dim until the line reaches them, then they light up with a small overshoot */
+.tl-node,
+.tl-dot {
+  background: hsl(var(--background));
+  color: hsl(var(--muted-foreground));
+  scale: 0.84;
+  transition:
+    background-color 0.5s ease,
+    color 0.5s ease,
+    border-color 0.5s ease,
+    box-shadow 0.7s ease,
+    scale 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+[data-lit] > .tl-node,
+[data-lit] > .tl-dot {
+  background: hsl(var(--primary));
+  border-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  scale: 1;
+  box-shadow: 0 0 0 6px hsl(var(--primary) / 0.14), 0 0 34px hsl(var(--primary) / 0.55);
+}
+
+
+/* cards branch out from the line: toward the left/right of the centre line, rightward from the rail */
+.tl-card {
+  --from: -18px;
+  opacity: 0;
+  transform: translate3d(var(--from), 18px, 0) scale(0.97);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0ms),
+    transform 1.1s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0ms);
+}
+@media (min-width: 1150px) {
+  .tl-from-centre-l { --from: 56px; transform-origin: 100% 0; }
+  .tl-from-centre-r { --from: -56px; transform-origin: 0 0; }
+}
+[data-shown] > .tl-card {
+  opacity: 1;
+  transform: none;
+}
+
+/* ───────── Skills: groups share one grid cell; the active one flows in as a diagonal wave ───────── */
+.skill-card {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0) scale(0.96);
+  /* leaving: quick, all together */
+  transition:
+    opacity 0.22s ease,
+    transform 0.3s ease,
+    translate 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.skills-group:not([data-on]) {
+  pointer-events: none;
+}
+.skills-stage.reveal-visible .skills-group[data-on] .skill-card {
+  opacity: 1;
+  transform: none;
+  /* arriving: staggered, after the old cards have mostly gone */
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--d, 0ms) + 120ms),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--d, 0ms) + 120ms),
+    translate 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.skill-card:hover {
+  translate: 0 -4px;
+}
+/* the stage itself only fades in; its cards do the moving */
+.skills-stage.reveal {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tl-card, .tl-node, .tl-dot, .skill-card { transition: none; }
+}
+
+/* ───────── Projects: card entrance + /projects filter ───────── */
+/* the photo settles from a slight zoom while its frame wipes open */
+.reveal-clip .proj-zoom {
+  scale: 1.14;
+  transition: scale 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-clip.reveal-visible .proj-zoom {
+  scale: 1;
+}
+/* the info card rises a beat after the image (transform only: its offset uses `translate`) */
+.proj-rise.reveal {
+  transform: translate3d(0, 56px, 0);
+  transition:
+    opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.25s,
+    transform 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.25s;
+}
+.proj-rise.reveal.reveal-visible {
+  transform: none;
+}
+
+/* filter: highlight pill slides between the buttons */
+/* theme switch: one crossfade of the whole page instead of every element easing its colours at its own pace */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.4s;
+  animation-timing-function: ease;
+}
+
+/* active tab under a sliding pill: its border takes the pill's colour only once the pill has arrived */
+.pill-on {
+  border-color: hsl(var(--foreground));
+  transition-delay: 0s, 0.45s;
+}
+
+.filter-pill {
+  transition:
+    translate 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+    width 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+    height 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+    opacity 0.3s ease;
+}
+/* the old list sinks away before the new one comes in (timing: LEAVE_MS in projects/page.tsx) */
+.proj-list {
+  transition:
+    opacity 0.26s ease,
+    transform 0.26s ease,
+    filter 0.26s ease;
+}
+.proj-list-leaving {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  filter: blur(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-clip .proj-zoom, .proj-rise.reveal, .filter-pill, .proj-list { transition: none; }
 }
