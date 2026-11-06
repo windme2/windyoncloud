@@ -1,193 +1,210 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { educationData, experienceData } from "@/data/journey";
-import { Briefcase, Calendar, GraduationCap } from "lucide-react";
+import { SectionHeading } from "@/components/SectionHeading";
+import { useSlidingPill } from "@/lib/useSlidingPill";
+
+const tabs = [
+  { id: "education", label: "Education" },
+  { id: "experience", label: "Work experience" },
+] as const;
+
+/** Where the line's tip sits, as a fraction of the viewport height from the top. */
+const TIP_AT = 0.62;
+/** Node centre from the top of each item: desktop disc (top-8 + half of h-14), rail dot (top-9 + half of 11px). */
+const nodeY = () => (window.innerWidth >= 1150 ? 60 : 41);
 
 /**
- * Journey component mapping the developer's education and career timeline.
- * Employs client side tabs and CSS slide/fade transitions on toggle.
- * Timeline features a neutral center line and opaque progressive node markers.
+ * Journey — a timeline that draws itself: the line grows (eased) as you scroll, a glowing head rides its tip,
+ * each node lights up as the line reaches it and its card branches out from the line.
+ * Zig-zag around a centre line from 1150px, a left rail below that.
  */
 export function Journey() {
   const [activeTab, setActiveTab] = useState<"education" | "experience">(
     "education",
   );
+  const trackRef = useRef<HTMLDivElement>(null);
+  const { barRef, pillRef } = useSlidingPill(activeTab);
 
-  // Helper function to calculate progressive timeline colors representing a visual journey (top is oldest)
-  const getJourneyTheme = (index: number, status: string) => {
-    // Current ongoing status (active)
-    if (status === "current") {
-      return {
-        node: "from-emerald-400 to-green-600 border-emerald-200 dark:border-emerald-950 shadow-emerald-500/10 text-white",
-        badge: "bg-gradient-to-r from-emerald-500 to-green-600 text-white",
-      };
-    }
-    // Future upcoming targets
-    if (status === "future") {
-      return {
-        node: "from-orange-400 to-amber-600 border-orange-200 dark:border-orange-950 shadow-orange-500/10 text-white",
-        badge: "bg-gradient-to-r from-orange-500 to-amber-600 text-white",
-      };
-    }
+  const items = activeTab === "education" ? educationData : experienceData;
 
-    // Completed status
-    return {
-      node: "from-blue-400 to-sky-600 border-blue-200 dark:border-blue-950 shadow-blue-500/10 text-white",
-      badge: "bg-gradient-to-r from-blue-500 to-sky-600 text-white",
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let cur = -1; // eased progress 0..1 (-1 = not started, jump straight to the target)
+    let frame = 0;
+    let running = false;
+
+    const tick = () => {
+      const rect = track.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const tipY = vh * TIP_AT;
+      const target = reduce
+        ? 1
+        : Math.min(1, Math.max(0, (tipY - rect.top) / rect.height));
+      cur = cur < 0 ? target : cur + (target - cur) * 0.12;
+      if (Math.abs(target - cur) < 0.0005) cur = target;
+
+      track.style.setProperty("--p", cur.toFixed(4));
+      track.style.setProperty("--tip", `${(cur * rect.height).toFixed(1)}px`);
+
+      // light every node the (eased) line has reached; a card, once out, stays out
+      const lineY = rect.top + cur * rect.height;
+      let batch = 0;
+      const ny = nodeY();
+      track.querySelectorAll<HTMLElement>("[data-tl-item]").forEach((li) => {
+        const lit = reduce || li.getBoundingClientRect().top + ny <= lineY + 1;
+        li.toggleAttribute("data-lit", lit);
+        if (lit && !li.hasAttribute("data-shown")) {
+          // several at once (tab switch, jump-scroll): cascade them
+          li.style.setProperty("--d", `${batch++ * 110}ms`);
+          li.setAttribute("data-shown", "");
+        }
+      });
+
+      if (running) frame = requestAnimationFrame(tick);
     };
-  };
+
+    // only animate while the section is near the screen
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !running) {
+          running = true;
+          frame = requestAnimationFrame(tick);
+        } else if (!entry.isIntersecting && running) {
+          running = false;
+          cancelAnimationFrame(frame);
+        }
+      },
+      { rootMargin: "20% 0px 20% 0px" },
+    );
+    io.observe(track);
+    return () => {
+      io.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, []);
 
   return (
-    <section
-      id="journey"
-      className="py-16 md:py-24 relative bg-background dark:bg-gray-950"
-    >
-      <div className="container">
-        <div className="max-w-6xl mx-auto">
-          {/* Section heading - Solid text colors with orange accent */}
-          <h2 className="reveal text-3xl md:text-4xl font-bold mb-6 text-center text-slate-900 dark:text-white">
-            My <span className="text-orange-500">Journey</span>
-          </h2>
+    <section id="journey" className="relative scroll-mt-20 py-20 md:py-32">
+      <div className="container max-w-7xl">
+        <SectionHeading index="03" label="Journey" title="My" accent="journey" />
 
-          <p className="reveal delay-100 text-lg text-muted-foreground text-center max-w-xl mx-auto mb-12">
-            From logistics expertise to software development, exploring the path
-            of continuous learning and growth.
-          </p>
-
-          {/* Tab Navigation */}
-          <div className="reveal delay-200 flex justify-center my-8 md:my-12 px-4">
-            <div className="relative grid grid-cols-2 items-center bg-gray-100 dark:bg-neutral-900 p-1 rounded-xl w-full max-w-md mx-auto shadow-sm transition-colors duration-300">
-              {/* Sliding background indicator pill */}
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "absolute top-1 bottom-1 left-1 rounded-lg bg-orange-500 shadow-lg shadow-orange-500/20",
-                  "w-[calc(50%-0.25rem)] transition-all duration-500 ease-out",
-                  activeTab === "experience"
-                    ? "left-[calc(50%+0.25rem)]"
-                    : "left-1",
-                )}
-              />
-              <button
-                onClick={() => setActiveTab("education")}
-                className={cn(
-                  "relative z-10 w-full px-3 py-2 md:px-6 md:py-3 rounded-lg font-semibold text-sm md:text-base transition-colors duration-300 cursor-pointer",
-                  activeTab === "education"
-                    ? "text-white"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200",
-                )}
-              >
-                <GraduationCap className="w-4 h-4 md:w-5 md:h-5 inline mr-1 md:mr-2" />
-                Education
-              </button>
-              <button
-                onClick={() => setActiveTab("experience")}
-                className={cn(
-                  "relative z-10 w-full px-3 py-2 md:px-6 md:py-3 rounded-lg font-semibold text-sm md:text-base transition-colors duration-300 cursor-pointer",
-                  activeTab === "experience"
-                    ? "text-white"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200",
-                )}
-              >
-                <Briefcase className="w-4 h-4 md:w-5 md:h-5 inline mr-1 md:mr-2" />
-                Work Experience
-              </button>
-            </div>
+        <div className="reveal mb-14 flex min-[1150px]:justify-center">
+          <div
+            ref={barRef}
+            role="group"
+            aria-label="Journey"
+            className="relative flex flex-wrap gap-3"
+          >
+            <span
+              ref={pillRef}
+              aria-hidden="true"
+              className="filter-pill pointer-events-none absolute left-0 top-0 rounded-full bg-foreground opacity-0"
+            />
+            {tabs.map((tab) => {
+              const on = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  aria-pressed={on}
+                  data-pill-key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    "relative z-10 cursor-pointer rounded-full border px-5 py-2 text-[10px] font-medium uppercase tracking-[0.25em] transition-[color,border-color] duration-500",
+                    on
+                      ? "pill-on text-background"
+                      : "text-foreground/80 hover:border-foreground hover:text-foreground",
+                  )}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
+        </div>
 
-          {/* Timeline Content */}
-          <div key={activeTab} className="relative animate-fade-in">
-            {/* Center Line - Neutral slate-200 / neutral-800 line */}
-            <div className="hidden min-[1150px]:block absolute left-1/2 transform -translate-x-1/2 w-0.5 h-full bg-slate-200 dark:bg-neutral-800"></div>
+        <div ref={trackRef} className="tl relative">
+          {/* Line: faint track, the drawn part, and a glowing head on its tip */}
+          <div aria-hidden="true" className="tl-rail absolute top-0 h-full w-px bg-border" />
+          <div aria-hidden="true" className="tl-rail tl-line absolute top-0 h-full w-px origin-top" />
+          <div aria-hidden="true" className="tl-rail tl-head absolute top-0" />
 
-            {/* Timeline Items */}
-            <div className="space-y-6 lg:space-y-16 px-4 lg:px-8">
-              {(activeTab === "education" ? educationData : experienceData).map(
-                (item, index) => {
-                  const IconComponent = item.icon;
-                  const isLeft = index % 2 === 0;
-                  const theme = getJourneyTheme(index, item.status);
+          <ol key={activeTab} className="space-y-8 min-[1150px]:space-y-16">
+            {items.map((item, index) => {
+              const Icon = item.icon;
+              const left = index % 2 === 0;
+              const org =
+                activeTab === "education"
+                  ? (item as (typeof educationData)[0]).institution
+                  : (item as (typeof experienceData)[0]).company;
 
-                  return (
-                    <div
-                      key={item.title}
-                      className={cn(
-                        "relative flex items-start transition-all duration-700 transform animate-fade-in-up",
-                        "max-[1149px]:justify-center min-[1150px]:justify-start",
-                        isLeft && "min-[1150px]:justify-start",
-                        !isLeft && "min-[1150px]:justify-end",
+              return (
+                <li
+                  key={`${activeTab}-${item.title}`}
+                  data-tl-item
+                  className="relative pl-9 min-[1150px]:pl-0"
+                >
+                  {/* Node: icon disc on the centre line (desktop), small dot on the rail (below) */}
+                  <span
+                    aria-hidden="true"
+                    className="tl-node absolute left-1/2 top-8 z-10 hidden h-14 w-14 -translate-x-1/2 place-items-center rounded-full border min-[1150px]:grid"
+                  >
+                    <Icon className="h-6 w-6" strokeWidth={1.25} />
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="tl-dot absolute left-[11px] top-9 z-10 h-[11px] w-[11px] -translate-x-1/2 rounded-full border min-[1150px]:hidden"
+                  />
+
+                  <article
+                    className={cn(
+                      "tl-card glass w-full overflow-hidden rounded-2xl min-[1150px]:w-[calc(50%-4rem)]",
+                      left
+                        ? "tl-from-centre-l min-[1150px]:mr-auto"
+                        : "tl-from-centre-r min-[1150px]:ml-auto",
+                    )}
+                  >
+                    <div className="p-6 md:p-8">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                        {item.year}
+                      </p>
+                      <h3 className="mt-2 font-display text-xl font-light md:text-2xl">
+                        {item.title}
+                      </h3>
+                      <p className="mt-1 font-serif text-base font-light italic text-primary-ink">
+                        {item.subtitle}
+                      </p>
+                      <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                        {org}
+                      </p>
+                      <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                        {item.description}
+                      </p>
+                      {(item.status === "current" ||
+                        item.status === "incomplete") && (
+                        <span className="mt-5 inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-primary-ink">
+                          <span
+                            className={cn(
+                              "h-1.5 w-1.5 rounded-full",
+                              item.status === "current"
+                                ? "animate-pulse bg-primary"
+                                : "bg-muted-foreground",
+                            )}
+                          />
+                          {item.status === "current" ? "Current" : "Incomplete"}
+                        </span>
                       )}
-                      style={{ animationDelay: `${index * 100}ms` }}
-                    >
-                      {/* Timeline Node */}
-                      <div className="hidden min-[1150px]:block absolute left-2 min-[1150px]:left-1/2 transform min-[1150px]:-translate-x-1/2 z-10">
-                        <div
-                          className={`w-10 h-10 min-[1150px]:w-16 min-[1150px]:h-16 bg-gradient-to-br ${theme.node} rounded-full border-3 border-white dark:border-gray-900 shadow-lg flex items-center justify-center hover:scale-110 hover:shadow-xl transition-all duration-500 ease-out`}
-                        >
-                          <IconComponent className="w-8 h-8" />
-                        </div>
-                      </div>
-
-                      {/* Content Card (Glassmorphic look) */}
-                      <div
-                        className={`w-full max-w-md min-[1150px]:max-w-lg ${
-                          isLeft
-                            ? "min-[1150px]:mr-auto min-[1150px]:pr-16 min-[1150px]:ml-8"
-                            : "min-[1150px]:ml-auto min-[1150px]:pl-16"
-                        }`}
-                      >
-                        <div
-                          className={`p-6 lg:p-8 rounded-xl bg-slate-50/40 dark:bg-neutral-900/40 backdrop-blur-md text-slate-800 dark:text-slate-200 border border-black/[0.04] dark:border-white/[0.06] transition-all duration-500 ease-out hover:border-orange-500/30 dark:hover:border-orange-500/30 hover:shadow-xl hover:scale-[1.02] group text-left min-[1150px]:${
-                            isLeft ? "text-right" : "text-left"
-                          }`}
-                        >
-                          {/* Year Badge */}
-                          <div
-                            className={`inline-block px-3 py-1 rounded-full text-sm font-semibold mb-3 transition-all duration-300 ${theme.badge}`}
-                          >
-                            <Calendar className="w-4 h-4 inline align-middle mr-1" />
-                            {item.year}
-                          </div>
-
-                          {/* Title */}
-                          <h3 className="text-lg lg:text-xl font-bold mb-2 text-slate-800 dark:text-slate-100 group-hover:text-orange-500 dark:group-hover:text-orange-400 transition-colors duration-500">
-                            {item.title}
-                          </h3>
-
-                          {/* Subtitle */}
-                          <h4 className="text-sm lg:text-md font-semibold text-orange-500 dark:text-orange-400 transition-colors duration-300 mb-2">
-                            {item.subtitle}
-                          </h4>
-
-                          {/* Institution/Company */}
-                          <p className="text-xs lg:text-sm font-bold text-slate-700 dark:text-slate-300 transition-colors duration-300 mb-2">
-                            {activeTab === "education"
-                              ? (item as (typeof educationData)[0]).institution
-                              : (item as (typeof experienceData)[0]).company}
-                          </p>
-
-                          <p className="text-xs lg:text-sm leading-relaxed text-slate-500 dark:text-slate-400 transition-colors duration-300 whitespace-pre-line">
-                            {item.description}
-                          </p>
-
-                          {/* Active/Current status indicator */}
-                          {item.status === "current" && (
-                            <div className="mt-3">
-                              <span className="inline-block px-2.5 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-full transition-colors duration-300">
-                                Current
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
                     </div>
-                  );
-                },
-              )}
-            </div>
-          </div>
+                  </article>
+                </li>
+              );
+            })}
+          </ol>
         </div>
       </div>
     </section>

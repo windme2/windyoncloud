@@ -1,199 +1,348 @@
 "use client";
 
-import { ExternalLink } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRight, ExternalLink } from "lucide-react";
 import { Github } from "@/components/icons";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { projects, categories } from "@/data/projects";
+import { projects, type Project } from "@/data/projects";
 import Image from "next/image";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { SectionHeading } from "@/components/SectionHeading";
+import { LandingStrip } from "@/components/LandingStrip";
+import { AccessBadge } from "@/components/AccessBadge";
+import { getLenis } from "@/lib/lenis";
+import { useSlidingPill } from "@/lib/useSlidingPill";
+
+const pillClass =
+  "inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-[10px] font-medium uppercase tracking-[0.25em] transition-colors hover:border-foreground hover:bg-foreground hover:text-background";
 
 /**
- * Projects showcase component displaying filtered works.
- * Redesigned with glassmorphic cards, border glow transitions, and responsive overlays.
- * Shows up to 9 projects on the home page, with theme orange category filters.
+ * Staggered project list: image and glass info card alternate sides and
+ * overlap, with a giant outlined numeral behind. Live / Source links appear
+ * over the image on hover (desktop) and under the text on touch screens.
  */
-export function Projects() {
-  const [activeCategory, setActiveCategory] = useState("All");
-
-  const filteredProjects =
-    activeCategory === "All"
-      ? projects
-      : projects.filter((project) => project.category === activeCategory);
-
-  const handleCategoryChange = (category: string) => {
-    setActiveCategory(category);
-  };
-
+function ProjectList({
+  items,
+  eagerFirst = false,
+}: {
+  items: Project[];
+  /** Load the first image right away (on /projects it's above the fold and is the LCP). */
+  eagerFirst?: boolean;
+}) {
   return (
-    <section
-      id="projects"
-      className="py-16 md:py-24 relative bg-background dark:bg-gray-950 scroll-mt-20"
-    >
-      <div className="container">
-        {/* Section Heading - Clean solid text with orange accent */}
-        <h2 className="reveal text-3xl md:text-4xl font-bold mb-6 text-center text-slate-900 dark:text-white">
-          My <span className="text-orange-500">Projects</span>
-        </h2>
-        <p className="reveal delay-100 text-lg text-muted-foreground text-center max-w-xl mx-auto mb-12">
-          A curated set of projects marking my shift from logistics to frontend,
-          with focus on modern tech and user-first design.
-        </p>
+    <ol>
+      {items.map((project, index) => {
+        const flip = index % 2 === 1;
 
-        {/* Category Filter Navigation */}
-        <div className="reveal delay-200 flex flex-wrap justify-center gap-3 mb-12">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => handleCategoryChange(category)}
+        return (
+          <li
+            key={project.title}
+            data-stack
+            className="glass-solid group relative mb-8 grid grid-cols-1 items-center gap-y-0 overflow-hidden rounded-2xl md:mb-[9vh] md:grid-cols-12 md:gap-y-6 md:overflow-visible md:rounded-none md:!border-0 md:!bg-transparent md:!shadow-none [@media(min-width:768px)_and_(min-height:760px)]:sticky"
+            style={{
+              top: "13vh",
+              zIndex: index + 1,
+              scale: "calc(1 - var(--cover, 0) * 0.05)",
+              // stays solid until the next card is ~40% over it, then fades out by the time it's covered
+              opacity: "calc(1.6 - var(--cover, 0) * 1.5)",
+              transformOrigin: "50% 0%",
+            }}
+          >
+            {/* Image: wipes in, tilts with the pointer, photo drifts inside the frame */}
+            <div
               className={cn(
-                "px-4 py-2 text-sm font-medium rounded-lg border transition-all duration-300 flex items-center gap-2 hover:scale-105 cursor-pointer",
-                activeCategory === category
-                  ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20 border-orange-500"
-                  : "bg-background border-border text-slate-600 dark:text-slate-400 hover:bg-orange-50 dark:hover:bg-orange-950/20 hover:text-orange-600 dark:hover:text-orange-400 hover:border-orange-500/30",
+                "relative md:row-start-1 md:col-span-8",
+                flip ? "md:col-start-5" : "md:col-start-1",
               )}
             >
-              <span>{category}</span>
-              <span
-                className={cn(
-                  "px-1.5 py-0.5 rounded text-[10px] font-semibold transition-colors",
-                  activeCategory === category
-                    ? "bg-white/20 text-white"
-                    : "bg-black/[0.05] dark:bg-white/[0.05] text-slate-500",
-                )}
+              <div
+                data-tilt
+                className="reveal-clip transition-transform duration-300 ease-out will-change-transform"
               >
-                {category === "All"
-                  ? projects.length
-                  : projects.filter((p) => p.category === category).length}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        {/* Projects Cards Grid (Max 9 items) */}
-        <div
-          key={activeCategory}
-          className="reveal delay-300 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-300 animate-tab-change"
-        >
-          {filteredProjects.slice(0, 9).map((project, index) => (
-            <div
-              key={project.title}
-              className="group relative overflow-hidden bg-slate-50/40 dark:bg-neutral-900/40 backdrop-blur-md rounded-2xl border border-black/[0.04] dark:border-white/[0.06] hover:border-orange-500/30 dark:hover:border-orange-500/30 hover:bg-white dark:hover:bg-neutral-900/80 transition-all duration-500 ease-out hover:-translate-y-1.5 hover:shadow-[0_15px_30px_-10px_rgba(249,115,22,0.1)] flex flex-col justify-between"
-              style={{
-                transitionDelay: `${index * 50}ms`,
-              }}
-            >
-              {/* Image Container with Hover Zoom Overlay */}
-              <div className="relative aspect-video overflow-hidden bg-muted rounded-t-2xl">
-                <Image
-                  src={project.image}
-                  alt={project.title}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-
-                {/* Category Badge */}
-                <span className="absolute top-3 right-3 px-2 py-0.5 rounded bg-black/60 text-white text-[10px] font-semibold backdrop-blur-sm">
-                  {project.category}
-                </span>
-
-                {/* Overlay Links on hover */}
-                <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex items-center justify-center gap-4">
-                  {project.demoLink && (
-                    <a
-                      href={project.demoLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3.5 py-1.5 rounded-lg border border-white/30 text-white hover:bg-white hover:text-black transition-all duration-300 backdrop-blur-sm text-sm flex items-center gap-1.5"
+                <div className="glass relative aspect-[16/10] overflow-hidden max-md:!rounded-none max-md:!border-0 max-md:!bg-transparent max-md:!p-0 max-md:!shadow-none md:rounded-2xl md:p-1.5">
+                  <div className="relative h-full w-full overflow-hidden md:rounded-xl">
+                    <div
+                      data-parallax="0.06"
+                      className="proj-zoom absolute -inset-y-[9%] inset-x-0"
                     >
-                      <ExternalLink size={14} /> Demo
-                    </a>
-                  )}
-                  {project.codeLink && (
-                    <a
-                      href={project.codeLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3.5 py-1.5 rounded-lg bg-white/20 border border-white/10 text-white hover:bg-white hover:text-black transition-all duration-300 backdrop-blur-sm text-sm flex items-center gap-1.5"
+                      <Image
+                        src={project.image}
+                        alt={project.title}
+                        fill
+                        loading={eagerFirst && index === 0 ? "eager" : undefined}
+                        fetchPriority={eagerFirst && index === 0 ? "high" : undefined}
+                        className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
+                        sizes="(max-width: 768px) 100vw, 62vw"
+                      />
+                    </div>
+                    <Link
+                      href={`/projects/${project.slug}`}
+                      aria-label={`Case study: ${project.title}`}
+                      className="absolute inset-0 z-10"
+                    />
+                    <div
+                      className={cn(
+                        "pointer-events-none absolute inset-0 z-20 hidden items-center justify-center gap-4 bg-[#020823]/70 opacity-0 transition-opacity duration-500 group-hover:opacity-100",
+                        project.demoLink || project.codeLink
+                          ? "md:flex"
+                          : "hidden",
+                      )}
                     >
-                      <Github className="w-3.5 h-3.5" /> Code
-                    </a>
-                  )}
-                </div>
-              </div>
-
-              {/* Title & Description Details */}
-              <div className="p-6 flex-1 flex flex-col justify-between text-left">
-                <div className="space-y-3">
-                  {project.featured && (
-                    <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                      ⭐ Featured
-                    </span>
-                  )}
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 group-hover:text-orange-500 dark:group-hover:text-orange-400 transition-colors duration-300">
-                    {project.title}
-                  </h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-3 leading-relaxed">
-                    {project.description}
-                  </p>
-                </div>
-
-                {/* Mobile Action Buttons (Visible only on mobile/touch screens) */}
-                <div className="flex items-center gap-3 mt-4 md:hidden">
-                  {project.demoLink && (
-                    <a
-                      href={project.demoLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 py-2 text-center rounded-lg border border-orange-500/30 dark:border-orange-500/50 text-slate-800 dark:text-slate-200 bg-orange-500/5 dark:bg-orange-500/10 hover:bg-orange-500 hover:text-white transition-all text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <ExternalLink size={12} /> Demo
-                    </a>
-                  )}
-                  {project.codeLink && (
-                    <a
-                      href={project.codeLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 py-2 text-center rounded-lg border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 transition-all text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <Github className="w-3 h-3" /> Code
-                    </a>
-                  )}
-                </div>
-
-                {/* Tag Badges Footer */}
-                <div className="flex flex-wrap gap-1.5 pt-6 mt-auto">
-                  {project.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-0.5 rounded text-[10px] font-medium bg-black/[0.03] dark:bg-white/[0.03] text-slate-500 dark:text-slate-400 border border-black/[0.02] dark:border-white/[0.02] transition-all duration-300 group-hover:bg-black/[0.06] dark:group-hover:bg-white/[0.06] group-hover:text-slate-800 dark:group-hover:text-slate-200 group-hover:border-black/[0.08] dark:group-hover:border-white/[0.08]"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+                      {project.demoLink && (
+                        <a
+                          href={project.demoLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={cn(
+                            pillClass,
+                            "pointer-events-auto border-white/60 text-white",
+                          )}
+                        >
+                          <ExternalLink size={12} /> Live
+                        </a>
+                      )}
+                      {project.codeLink && (
+                        <a
+                          href={project.codeLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={cn(
+                            pillClass,
+                            "pointer-events-auto border-white/60 text-white",
+                          )}
+                        >
+                          <Github className="h-3 w-3" /> Source
+                        </a>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
 
-        {/* Redirect More Projects Link (Only show if filtered projects exceed 9) */}
-        {filteredProjects.length > 9 && (
-          <div className="flex justify-end mt-10">
-            <Link
-              href="/projects"
-              className="group inline-flex items-center gap-1.5 text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-orange-500 transition-colors cursor-pointer"
+            {/* Info card: overlaps the image and drifts at a different speed */}
+            <div
+              data-parallax={flip ? "0.05" : "-0.05"}
+              className={cn(
+                "relative z-10 md:row-start-1 md:col-span-5",
+                flip ? "md:col-start-1" : "md:col-start-8",
+              )}
             >
-              More Projects{" "}
-              <span className="transition-transform group-hover:translate-x-1.5">
-                ❯
-              </span>
-            </Link>
-          </div>
-        )}
+              <div
+                className={cn(
+                  "proj-rise reveal glass-solid relative overflow-hidden p-5 sm:p-6 md:rounded-2xl md:p-8 max-md:!border-0 max-md:!bg-transparent max-md:!shadow-none",
+                  flip ? "md:-translate-y-8" : "md:translate-y-8",
+                )}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground">
+                    {String(index + 1).padStart(2, "0")} /{" "}
+                    {String(items.length).padStart(2, "0")}
+                  </span>
+                  <span className="flex flex-wrap items-center justify-end gap-2">
+                    {project.access && <AccessBadge access={project.access} />}
+                    <span className="rounded-full bg-primary/12 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-primary-ink">
+                      {project.category}
+                    </span>
+                  </span>
+                </div>
+                <h3 className="mt-5 font-display text-2xl font-light leading-tight md:text-3xl">
+                  {project.title}
+                </h3>
+                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                  {project.description}
+                </p>
+                <ul className="mt-6 flex flex-wrap gap-1.5 border-t pt-5">
+                  {project.tags.map((tag) => (
+                    <li
+                      key={tag}
+                      className="rounded-full border border-foreground/20 bg-background/55 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/85"
+                    >
+                      {tag}
+                    </li>
+                  ))}
+                </ul>
+
+                <Link
+                  href={`/projects/${project.slug}`}
+                  className="group/cs mt-6 inline-flex items-center gap-3 rounded-full border border-primary/40 bg-primary/10 py-1.5 pl-5 pr-1.5 text-[10px] font-medium uppercase tracking-[0.25em] text-primary-ink transition-colors duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground"
+                >
+                  Read case study
+                  <span
+                    aria-hidden="true"
+                    className="grid h-7 w-7 place-items-center rounded-full bg-primary text-primary-foreground transition-[background-color,color,transform] duration-300 group-hover/cs:translate-x-0.5 group-hover/cs:bg-white group-hover/cs:text-primary-ink dark:text-primary-foreground dark:group-hover/cs:bg-primary-foreground dark:group-hover/cs:text-primary"
+                  >
+                    <ArrowRight
+                      size={13}
+                      strokeWidth={1.75}
+                      className="transition-transform duration-300 group-hover/cs:-rotate-45"
+                    />
+                  </span>
+                </Link>
+
+                {/* Touch screens: no hover, so show the links here */}
+                <div className="mt-6 flex gap-3 md:hidden">
+                  {project.demoLink && (
+                    <a
+                      href={project.demoLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={pillClass}
+                    >
+                      <ExternalLink size={12} /> Live
+                    </a>
+                  )}
+                  {project.codeLink && (
+                    <a
+                      href={project.codeLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={pillClass}
+                    >
+                      <Github className="h-3 w-3" /> Source
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+/** How long the old list takes to leave before the new one comes in (matches .proj-list-leaving). */
+const LEAVE_MS = 260;
+
+/**
+ * Category filter + list. Switching: a highlight pill slides to the chosen category, the current list
+ * sinks away, then the new cards come in with the scroll entrance (image wipe + zoom, info card rising).
+ * Only categories present in `items` get a button; no bar at all when there's just one.
+ */
+export function FilteredProjects({
+  items,
+  eagerFirst = false,
+}: {
+  items: Project[];
+  eagerFirst?: boolean;
+}) {
+  // `active` moves the pill right away; `shown` swaps the list once the old one has left
+  const [active, setActive] = useState("All");
+  const [shown, setShown] = useState("All");
+  const [leaving, setLeaving] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const { barRef, pillRef } = useSlidingPill(active);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const cats = ["All", ...Array.from(new Set(items.map((p) => p.category)))];
+  const countOf = (c: string) =>
+    c === "All" ? items.length : items.filter((p) => p.category === c).length;
+  const filtered =
+    shown === "All" ? items : items.filter((p) => p.category === shown);
+
+  useEffect(() => () => clearTimeout(timer.current), []);
+
+  const choose = (category: string) => {
+    if (category === active) return;
+    setActive(category);
+    setLeaving(true);
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      setShown(category);
+      setLeaving(false);
+      // scrolled down into the list? bring the top of the new list back into view
+      const top = listRef.current?.getBoundingClientRect().top ?? 0;
+      if (top < 0) {
+        const lenis = getLenis();
+        const y = window.scrollY + top - 160;
+        if (lenis) lenis.scrollTo(y, { duration: 0.9 });
+        else window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }, LEAVE_MS);
+  };
+
+  return (
+    <>
+      {cats.length > 2 && (
+        <div
+          ref={barRef}
+          role="group"
+          aria-label="Filter projects by type"
+          className="reveal relative mb-12 flex flex-wrap gap-3"
+        >
+          {/* the highlight that slides between buttons */}
+          <span
+            ref={pillRef}
+            aria-hidden="true"
+            className="filter-pill pointer-events-none absolute left-0 top-0 rounded-full bg-foreground opacity-0"
+          />
+          {cats.map((category) => {
+            const on = active === category;
+            return (
+              <button
+                key={category}
+                data-pill-key={category}
+                aria-pressed={on}
+                onClick={() => choose(category)}
+                className={cn(
+                  "relative z-10 inline-flex cursor-pointer items-center gap-2 rounded-full border px-5 py-2 text-[10px] font-medium uppercase tracking-[0.25em] transition-[color,border-color] duration-500",
+                  on
+                    ? "pill-on text-background"
+                    : "text-muted-foreground hover:border-foreground hover:text-foreground",
+                )}
+              >
+                {category}
+                <span
+                  className={cn(
+                    "font-mono tracking-normal transition-opacity duration-500",
+                    on ? "opacity-60" : "opacity-50",
+                  )}
+                >
+                  {countOf(category)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      <div ref={listRef} className={cn("proj-list", leaving && "proj-list-leaving")}>
+        <ProjectList key={shown} items={filtered} eagerFirst={eagerFirst} />
       </div>
+    </>
+  );
+}
+
+/** Home page shows only projects marked `featured: true`; /projects shows everything. */
+const featured = projects.filter((project) => project.featured);
+
+/**
+ * Selected Works — the featured projects as a sticky stack with the category filter, the landing page
+ * strip underneath and a link to the full /projects page when there are more.
+ */
+export function Projects() {
+  return (
+    <section id="projects" className="relative scroll-mt-20 py-20 md:py-32">
+      <div className="container max-w-7xl">
+        <SectionHeading
+          index="05"
+          label="Projects"
+          title="Selected"
+          accent="works"
+          action={
+            projects.length > featured.length && (
+              <Link href="/projects" className={cn(pillClass, "max-sm:px-4")}>
+                All projects <ArrowRight size={12} />
+              </Link>
+            )
+          }
+        />
+
+        <FilteredProjects items={featured} />
+      </div>
+
+      <LandingStrip />
     </section>
   );
 }
