@@ -48,11 +48,15 @@ export function HomeClientWrapper({ children }: HomeClientWrapperProps) {
 
   useEffect(() => {
     hydrated = true;
-    if (introSeen()) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setPhase("done");
-      return;
-    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (introSeen()) setPhase("done");
+  }, []);
+
+  // Lock scrolling only while the intro plays. Tied to `locked` so the listeners come off the moment
+  // the intro ends; with [] deps they stayed until unmount and phones (native touch scroll) froze.
+  const locked = phase !== "done";
+  useEffect(() => {
+    if (!locked || introSeen()) return;
     const root = document.documentElement;
     root.dataset.intro = "on";
     // Keep the scrollbar track (overflow-y: scroll) while locking scrolling by hand: switching to
@@ -79,7 +83,7 @@ export function HomeClientWrapper({ children }: HomeClientWrapperProps) {
       root.style.overflowY = "";
       getLenis()?.start();
     };
-  }, []);
+  }, [locked]);
 
   const toStage = useCallback(
     () => setPhase((p) => (p === "terminal" ? "stage" : p)),

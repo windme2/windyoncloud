@@ -62,12 +62,12 @@ export function Stats() {
           {stats.map((stat, i) => (
             <div
               key={stat.label}
-              className={`px-2 py-6 text-center md:py-8 ${i > 0 ? "border-l" : ""}`}
+              className={`flex flex-col px-2 py-6 text-center md:py-8 ${i > 0 ? "border-l" : ""}`}
             >
-              <dt className="order-2 mt-2 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+              <dt className="mt-2 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
                 {stat.label}
               </dt>
-              <dd className="font-display text-4xl sm:text-5xl font-extralight tabular-nums md:text-6xl">
+              <dd className="mt-auto font-display text-4xl sm:text-5xl font-extralight tabular-nums md:text-6xl">
                 <span className="text-sky">
                   <CountUp to={stat.value} />
                   {stat.suffix}
